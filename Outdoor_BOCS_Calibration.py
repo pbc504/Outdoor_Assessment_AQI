@@ -15,3 +15,11 @@ df2r = df2.resample("5Min").mean()
 
 df3.index = pd.to_datetime(df3.index, unit='s')
 df3r = df3.resample("5Min").mean()
+
+# Performs LinearRegression for x = 1045100_NO_29_Scaled and y = no_1
+x = df.iloc[:288,2].values.reshape((-1,1))
+y = df2r.iloc[:,17].values
+model = LinearRegression()
+model.fit(x,y)
+r_sq = model.score(x,y)
+print("R^2 = ",r_sq)
