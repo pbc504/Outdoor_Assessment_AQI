@@ -79,7 +79,8 @@ print("Intercept: ", model5.intercept_)
 print("Slope: ", model5.coef_)
 
 
-# Plots all no sensor outputs against the reference NO value. x = 1045100_NO_29_Scaled and y = no_*
+# Plots all NO sensor outputs against the reference NO value. x = 1045100_NO_29_Scaled and y = no_*
+plt.figure(1)
 xa = df.iloc[:288,2].values.reshape((-1,1))
 ya = df2r.iloc[:,17].values
 plt.scatter(xa,ya)
@@ -106,3 +107,18 @@ plt.scatter(xa,yk)
 yl = df3r.iloc[:,22].values
 plt.scatter(xa,yl)
 plt.show()
+
+joint_df = pd.concat([df2r, df3r], axis=1, sort=False)
+
+#Performs Multiple LinearRegression with x = Scaled NO,NOx and sensor temp for y= no_1
+df_NO_NOx_temp = pd.concat([df.iloc[:288,[2,14]],df2r.iloc[:,65]], axis=1, sort=False)
+
+x_new = df_NO_NOx_temp.values.reshape((-1,3))
+y_new = df2r.iloc[:,17].values
+model_new = LinearRegression().fit(x_new,y_new)
+r_sq_new = model_new.score(x_new,y_new)
+print()
+print("Regression of reference NO, reference NOx and sensor temp for sensor no_1")
+print("R^2 = ",r_sq_new)
+print("Intercept: ", model_new.intercept_)
+print("Slope: ", model_new.coef_)
