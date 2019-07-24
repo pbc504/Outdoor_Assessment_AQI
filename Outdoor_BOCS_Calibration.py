@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from sklearn.linear_model import LinearRegression
+import matplotlib.pyplot as plt
 
 df = pd.read_csv("../aviva_april_2019.csv", index_col=0)
 df2 = pd.read_csv("../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_1_2019-04-01_data.log", index_col=0)
@@ -25,8 +26,8 @@ r_sq = model.score(x,y)
 print("R^2 = ",r_sq)
 print("Intercept: ", model.intercept_)
 print("Slope: ", model.coef_)
-y_pred = model.predict(x)
-print("Predicted response: ", y_pred, sep="\n")
+#y_pred = model.predict(x)
+#print("Predicted response: ", y_pred, sep="\n")
 
 
 # Performs LinearRegression for x = 1045100_NO_29_Scaled and y = no_1
@@ -76,3 +77,32 @@ print("Regression of reference NO, reference NOx, reference temperature and refe
 print("R^2 = ",r_sq5)
 print("Intercept: ", model5.intercept_)
 print("Slope: ", model5.coef_)
+
+
+# Plots all no sensor outputs against the reference NO value. x = 1045100_NO_29_Scaled and y = no_*
+xa = df.iloc[:288,2].values.reshape((-1,1))
+ya = df2r.iloc[:,17].values
+plt.scatter(xa,ya)
+yb = df2r.iloc[:,18].values
+plt.scatter(xa,yb)
+yc = df2r.iloc[:,19].values
+plt.scatter(xa,yc)
+yd = df2r.iloc[:,20].values
+plt.scatter(xa,yd)
+ye = df2r.iloc[:,21].values
+plt.scatter(xa,yd)
+yf = df2r.iloc[:,22].values
+plt.scatter(xa,yf)
+yg = df3r.iloc[:,17].values
+plt.scatter(xa,yg)
+yh = df3r.iloc[:,18].values
+plt.scatter(xa,yh)
+yi = df3r.iloc[:,19].values
+plt.scatter(xa,yi)
+yj = df3r.iloc[:,20].values
+plt.scatter(xa,yj)
+yk = df3r.iloc[:,21].values
+plt.scatter(xa,yk)
+yl = df3r.iloc[:,22].values
+plt.scatter(xa,yl)
+plt.show()
