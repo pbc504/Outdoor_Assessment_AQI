@@ -25,8 +25,8 @@ r_sq = model.score(x,y)
 print("R^2 = ",r_sq)
 print("Intercept: ", model.intercept_)
 print("Slope: ", model.coef_)
-##y_pred = model.predict(x)
-##print("Predicted response: ", y_pred, sep="\n")
+y_pred = model.predict(x)
+print("Predicted response: ", y_pred, sep="\n")
 
 
 # Performs LinearRegression for x = 1045100_NO_29_Scaled and y = no_1
@@ -40,8 +40,6 @@ print("Regression of reference NO for sensor no_1")
 print("R^2 = ",r_sq2)
 print("Intercept: ", model2.intercept_)
 print("Slope: ", model2.coef_)
-##y_pred2 = model2.predict(x2)
-#print("Predicted response: ", y_pred2, sep="\n")
 
 
 # Performs Multiple LinearRegression with x = Scaled NO and TEMP and y= no_1
