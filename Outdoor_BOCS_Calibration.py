@@ -83,36 +83,39 @@ print("Slope: ", model5.coef_)
 plt.figure(1)
 xa = df.iloc[:288,2].values.reshape((-1,1))
 ya = df2r.iloc[:,17].values
-plt.scatter(xa,ya)
+plt.scatter(xa,ya, label="1_no1")
 yb = df2r.iloc[:,18].values
-plt.scatter(xa,yb)
+plt.scatter(xa,yb, label="1_no2")
 yc = df2r.iloc[:,19].values
-plt.scatter(xa,yc)
+plt.scatter(xa,yc, label="1_no3")
 yd = df2r.iloc[:,20].values
-plt.scatter(xa,yd)
+plt.scatter(xa,yd, label="1_no4")
 ye = df2r.iloc[:,21].values
-plt.scatter(xa,yd)
+plt.scatter(xa,yd, label="1_no5")
 yf = df2r.iloc[:,22].values
-plt.scatter(xa,yf)
+plt.scatter(xa,yf, label="1_no6")
 yg = df3r.iloc[:,17].values
-plt.scatter(xa,yg)
+plt.scatter(xa,yg, label="2_no1")
 yh = df3r.iloc[:,18].values
-plt.scatter(xa,yh)
+plt.scatter(xa,yh, label="2_no2")
 yi = df3r.iloc[:,19].values
-plt.scatter(xa,yi)
+plt.scatter(xa,yi, label="2_no3")
 yj = df3r.iloc[:,20].values
-plt.scatter(xa,yj)
+plt.scatter(xa,yj, label="2_no4")
 yk = df3r.iloc[:,21].values
-plt.scatter(xa,yk)
+plt.scatter(xa,yk, label="2_no5")
 yl = df3r.iloc[:,22].values
-plt.scatter(xa,yl)
+plt.scatter(xa,yl, label="2_no6")
+plt.title("NO data 1st April")
+plt.xlabel("Reference NO concentration /ppb")
+plt.ylabel("NO sensor outputs")
+plt.legend()
 plt.show()
 
 joint_df = pd.concat([df2r, df3r], axis=1, sort=False)
 
 #Performs Multiple LinearRegression with x = Scaled NO,NOx and sensor temp for y= no_1
-df_NO_NOx_temp = pd.concat([df.iloc[:288,[2,14]],df2r.iloc[:,65]], axis=1, sort=False)
-
+df_NO_NOx_temp = pd.concat([df.iloc[:288,[2,14]].reindex(df2r.index),df2r.iloc[:,65]], axis=1, sort=False)
 x_new = df_NO_NOx_temp.values.reshape((-1,3))
 y_new = df2r.iloc[:,17].values
 model_new = LinearRegression().fit(x_new,y_new)
@@ -122,3 +125,75 @@ print("Regression of reference NO, reference NOx and sensor temp for sensor no_1
 print("R^2 = ",r_sq_new)
 print("Intercept: ", model_new.intercept_)
 print("Slope: ", model_new.coef_)
+
+
+#Performs Multiple LinearRegression with x = Scaled NO,NOx, sensor temp and humidity for y= no_1
+df_NO_NOx_temp_hum = pd.concat([df.iloc[:288,[2,14]].reindex(df2r.index),df2r.iloc[:,[64,65]]], axis=1, sort=False)
+x_new2 = df_NO_NOx_temp_hum.values.reshape((-1,4))
+y_new2 = df2r.iloc[:,17].values
+model_new2 = LinearRegression().fit(x_new2,y_new2)
+r_sq_new2 = model_new2.score(x_new2,y_new2)
+print()
+print("Regression of reference NO, reference NOx, sensor temp and sensor hum for sensor no_1")
+print("R^2 = ",r_sq_new2)
+print("Intercept: ", model_new2.intercept_)
+print("Slope: ", model_new2.coef_)
+
+
+#flowrate
+xa2 = df2r.iloc[:,63].values.reshape((-1,1))
+ya2 = df2r.iloc[:,17].values
+r_sq = LinearRegression().fit(xa2,ya2).score(xa2,ya2)
+print()
+print("Flowrate r_sq= ", r_sq)
+
+#Performs Multiple LinearRegression with x = Scaled NO,NOx, sensor temp, humidity and flowrate for y= no_1
+df_NO_NOx_temp_hum = pd.concat([df.iloc[:288,[2,14]].reindex(df2r.index),df2r.iloc[:,[64,65]]], axis=1, sort=False)
+df_flow = pd.concat([df_NO_NOx_temp_hum, df2r.iloc[:,63]], axis=1, sort=False)
+x_new3 = df_flow.values.reshape((-1,5))
+y_new3 = df2r.iloc[:,17].values
+model_new3 = LinearRegression().fit(x_new3,y_new3)
+r_sq_new3 = model_new3.score(x_new3,y_new3)
+print()
+print("Regression of reference NO, reference NOx, sensor temp, hum and flow rate for sensor no_1")
+print("R^2 = ",r_sq_new3)
+print("Intercept: ", model_new3.intercept_)
+print("Slope: ", model_new3.coef_)
+
+
+
+# Plots all NO sensor outputs against the reference NOx value. x = 1045100_NOx_30_Scaled and y = no_*
+plt.figure(2)
+xa = df.iloc[:288,14].values.reshape((-1,1))
+ya = df2r.iloc[:,17].values
+plt.scatter(xa,ya, label="1_no1")
+yb = df2r.iloc[:,18].values
+plt.scatter(xa,yb, label="1_no2")
+yc = df2r.iloc[:,19].values
+plt.scatter(xa,yc, label="1_no3")
+yd = df2r.iloc[:,20].values
+plt.scatter(xa,yd, label="1_no4")
+ye = df2r.iloc[:,21].values
+plt.scatter(xa,yd, label="1_no5")
+yf = df2r.iloc[:,22].values
+plt.scatter(xa,yf, label="1_no6")
+yg = df3r.iloc[:,17].values
+plt.scatter(xa,yg, label="2_no1")
+yh = df3r.iloc[:,18].values
+plt.scatter(xa,yh, label="2_no2")
+yi = df3r.iloc[:,19].values
+plt.scatter(xa,yi, label="2_no3")
+yj = df3r.iloc[:,20].values
+plt.scatter(xa,yj, label="2_no4")
+yk = df3r.iloc[:,21].values
+plt.scatter(xa,yk, label="2_no5")
+yl = df3r.iloc[:,22].values
+plt.scatter(xa,yl, label="2_no6")
+plt.title("NO data 1st April")
+plt.xlabel("Reference NOx concentration /ppb")
+plt.ylabel("NO sensor outputs")
+plt.legend()
+
+
+
+plt.show()
