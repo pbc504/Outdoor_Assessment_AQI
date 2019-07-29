@@ -132,32 +132,9 @@ print("Intercept: ", model_new.intercept_)
 print("Slope: ", model_new.coef_)
 
 
-#Performs Multiple LinearRegression with x = Scaled NO,NOx and sensor temp, flowrate for y= all no sensors
-df_NO_NOx_temp = pd.concat([ref_df.iloc[:,[2,14]].reindex(sensor_df.index),sensor_df.iloc[:,[63,65]]], axis=1, sort=False)
-x= df_NO_NOx_temp.values.reshape((-1,4))
-for number in range (17,23):
-    y = sensor_df.iloc[:,number].values
-    model = LinearRegression().fit(x,y)
-    r_sq = model.score(x,y)
-    print()
-    print("Regression of reference NO, NOx and sensor temp, flowrate for sensor in array 1", number)
-    print("R^2 = ",r_sq)
-    print("Intercept: ", model.intercept_)
-    print("Slope: ", model.coef_)
-for number in range (83,89):
-    y = sensor_df.iloc[:,number].values
-    model = LinearRegression().fit(x,y)
-    r_sq = model.score(x,y)
-    print()
-    print("Regression of reference NO, NOx and sensor temp, flowrate for sensor in array 2", number)
-    print("R^2 = ",r_sq)
-    print("Intercept: ", model.intercept_)
-    print("Slope: ", model.coef_)
-
-
-##Performs Multiple LinearRegression with x = Scaled NO,NOx and sensor temp, flowrate for y= all no sensors. Stores all the results in a dataframe
-df_NO_NOx_temp = pd.concat([ref_df.iloc[:,[2,14]].reindex(sensor_df.index),sensor_df.iloc[:,[63,65]]], axis=1, sort=False)
-x= df_NO_NOx_temp.values.reshape((-1,4))
+##Performs Multiple LinearRegression with x = Scaled NO,NOx and sensor temp, hum, flowrate for y= all no sensors. Stores all the results in a dataframe
+df_NO_NOx_temp = pd.concat([ref_df.iloc[:,[2,14]].reindex(sensor_df.index),sensor_df.iloc[:,[63,64,65]]], axis=1, sort=False)
+x= df_NO_NOx_temp.values.reshape((-1,5))
 results = pd.DataFrame(columns=['r_sq', 'slope', 'intercept'])
 for number in range (17,23):
     y = sensor_df.iloc[:,number].values
