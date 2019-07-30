@@ -66,7 +66,27 @@ df2.columns = ['voc_1', 'voc_2', 'voc_3', 'voc_4', 'voc_5', 'voc_6', 'voc_7', 'v
     'relative_humidity', 'temperature']
 
 
-#'timestamp': 'datetime64[ns]',
+properties_df1 = pd.read_csv("../sensor_array_1_electronic_properties.csv", index_col=0)
+properties_df2 = pd.read_csv("../sensor_array_2_electronic_properties.csv", index_col=0)
+
+
+
+# Function to convert sensor signal to ppb
+#((we_signal - we_zero) - (ae_signal - ae_zero)) / sensitivity
+def signal_to_ppb(compound, sensor, new_variable_name):
+    we_signal = df1[compound + "_" + sensor + "_working"]
+    we_zero = properties_df1.loc[compound + '_' + sensor, 'we_zero']
+    we = we_signal - we_zero
+    ae_signal = df1[compound + "_" + sensor + "_aux"]
+    ae_zero = properties_df1.loc[compound + '_' + sensor, 'ae_zero']
+    ae = ae_signal - ae_zero
+    sensitivity = properties_df1.loc[compound + '_' + sensor, 'sensitivity']
+    new_variable_name = (we - ae)/sensitivity
+    print(new_variable_name)
+    
+
+
+
 
 #
 #ref_df.to_csv('../processed_aviva_april_2019.csv')
