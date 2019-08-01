@@ -57,9 +57,8 @@ def new_temperature_in_degrees(dataframe, Vout):
 
 
 
-
-
 # Process sensor_array_1 data
+# Select columns, chage their names, covert sensor signal to ppb, temperature to degrees and relative humidity to percentage. Then write new file with the converted values added.
 properties_df1 = pd.read_csv("../sensor_array_1_electronic_properties.csv", index_col=0)
 
 for file in glob.glob("../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_1_2019-04*"):
@@ -90,7 +89,8 @@ for file in glob.glob("../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_1_2019-04*
 
 
 
-### Process sensor_array_2 data
+# Process sensor_array_2 data
+# Select columns, chage their names, covert sensor signal to ppb, temperature to degrees and relative humidity to percentage. Then write new file with the converted values added.
 properties_df2 = pd.read_csv("../sensor_array_2_electronic_properties.csv", index_col=0)
 
 for file in glob.glob("../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_2_2019-04*"):
