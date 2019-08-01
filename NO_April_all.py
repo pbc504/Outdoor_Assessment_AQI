@@ -117,5 +117,12 @@ def calculate_linear_regression_for_combo(predictors, truth):
         print()
 
 # Tries different combinations of predictors
-for combo in itertools.combinations(df1.columns, 2):
-    calculate_linear_regression_for_combo(df1[list(combo)], ref_df['NO_Scaled'])
+#for combo in itertools.combinations(df1.columns, 2):
+#    calculate_linear_regression_for_combo(df1[list(combo)], ref_df['NO_Scaled'])
+
+
+# Plots temperature over time
+figure(1)
+x = df1.index
+y = df1['temperature_in_degrees']
+plt.scatter(x,y)
