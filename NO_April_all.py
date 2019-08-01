@@ -5,18 +5,47 @@ from sklearn.linear_model import LinearRegression
 import matplotlib.pyplot as plt
 import itertools
 
-ref_df = pd.read_csv("../aviva_april_2019.csv", index_col=0)
+ref_df = pd.read_csv("../preprocessed_aviva_april_2019.csv", header=0, index_col=0,
+dtype={'TimeBeginning': 'object', 'NO_Scaled': np.float64, 'NO2_Scaled': np.float64, 'NOx_Scaled': np.float64, 'O3_Scaled': np.float64, 'WD_Scaled': np.float64, 'TEMP_Scaled': np.float64, 'HUM_Scaled': np.float64, 'WINDMS_Scaled': np.float64})
 df1 = pd.DataFrame()
 df2 = pd.DataFrame()
 
-for file in glob.glob("../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_1_2019-04*"):
-    df1_1 = pd.read_csv(file, index_col=0)
+for file in glob.glob("../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocessed_SENSOR_ARRAY_1_2019-04*"):
+    df1_1 = pd.read_csv(file, header=0, index_col=0,
+    usecols=['timestamp', 'voc_1', 'voc_2', 'voc_3', 'voc_4', 'voc_5', 'voc_6', 'voc_7', 'voc_8',
+    'no_1', 'no_2', 'no_3',
+    'co_1', 'co_2', 'co_3',
+    'ox_1', 'ox_2', 'ox_3',
+    'no2_1', 'no2_2', 'no2_3',
+    'co2_1', 'co2_2', 'co2_3', 'co2_4', 'co2_5', 'co2_6',
+    'humidity_in_percentage', 'temperature_in_degrees', 'new_temperature_in_degrees'],
+    dtype={'timestamp': np.int64, 'voc_1': np.int64, 'voc_2': np.int64, 'voc_3': np.int64, 'voc_4': np.int64, 'voc_5': np.int64, 'voc_6': np.int64, 'voc_7': np.int64, 'voc_8': np.int64,
+    'no_1': np.float64, 'no_2': np.float64, 'no_3': np.float64,
+    'co_1': np.float64, 'co_2': np.float64, 'co_3': np.float64,
+    'ox_1': np.float64, 'ox_2': np.float64, 'ox_3': np.float64,
+    'no2_1': np.float64, 'no2_2': np.float64, 'no2_3': np.float64,
+    'co2_1': np.int64, 'co2_2': np.int64, 'co2_3': np.int64, 'co2_4': np.int64, 'co2_5': np.int64, 'co2_6': np.int64,
+    'humidity_in_percentage': np.float64, 'temperature_in_degrees': np.float64, 'new_temperature_in_degrees': np.float64})
     df1_1.index = pd.to_datetime(df1_1.index, unit='s')
     df1_1r = df1_1.resample("5Min").mean()
     df1 = df1.append(df1_1r, sort=False)
 
-for file in glob.glob("../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_2_2019-04*"):
-    df2_1 = pd.read_csv(file, index_col=0)
+for file in glob.glob("../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocessed_SENSOR_ARRAY_2_2019-04*"):
+    df2_1 = pd.read_csv(file, header=0, index_col=0,
+    usecols=['timestamp', 'voc_1', 'voc_2', 'voc_3', 'voc_4', 'voc_5', 'voc_6', 'voc_7', 'voc_8',
+    'no_1', 'no_2', 'no_3',
+    'co_1', 'co_2', 'co_3',
+    'ox_1', 'ox_2', 'ox_3',
+    'no2_1', 'no2_2', 'no2_3',
+    'co2_1', 'co2_2', 'co2_3', 'co2_4', 'co2_5', 'co2_6',
+    'humidity_in_percentage', 'temperature_in_degrees', 'new_temperature_in_degrees'],
+    dtype={'timestamp': np.int64, 'voc_1': np.int64, 'voc_2': np.int64, 'voc_3': np.int64, 'voc_4': np.int64, 'voc_5': np.int64, 'voc_6': np.int64, 'voc_7': np.int64, 'voc_8': np.int64,
+    'no_1': np.float64, 'no_2': np.float64, 'no_3': np.float64,
+    'co_1': np.float64, 'co_2': np.float64, 'co_3': np.float64,
+    'ox_1': np.float64, 'ox_2': np.float64, 'ox_3': np.float64,
+    'no2_1': np.float64, 'no2_2': np.float64, 'no2_3': np.float64,
+    'co2_1': np.int64, 'co2_2': np.int64, 'co2_3': np.int64, 'co2_4': np.int64, 'co2_5': np.int64, 'co2_6': np.int64,
+    'humidity_in_percentage': np.float64, 'temperature_in_degrees': np.float64, 'new_temperature_in_degrees': np.float64})
     df2_1.index = pd.to_datetime(df2_1.index, unit='s')
     df2_1r = df2_1.resample("5Min").mean()
     df2 = df2.append(df2_1r, sort=False)
