@@ -38,6 +38,17 @@ def signal_to_ppb_2(dataframe, compound, sensor):
     variable_name = compound + '_' + sensor
     dataframe[variable_name] = (we - ae)/sensitivity
 
+# Function to convert temperature signal to degrees
+def temperature_in_degrees(dataframe, temp):
+    x = np.array([4757, 4595, 4361, 4068, 3657, 3210, 2736, 2500, 2270, 1842, 1469, 1158, 911, 715]).reshape((-1,1))
+    y = np.array([-40, -30, -20, -10, 0, 10, 20, 25, 30, 40, 50, 60, 70, 80])
+    model = LinearRegression()
+    model.fit(x,y)
+    new_temp = temp*model.coef_ + model.intercept_
+    dataframe['new_temperature'] = new_temp
+
+
+
 
 
 # Process sensor_array_1 data
@@ -50,13 +61,7 @@ for file in glob.glob("../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_1_2019-04*
     'ox_1', 'ox_2', 'ox_3', 'ox_4', 'ox_5', 'ox_6',
     'no2_1', 'no2_2', 'no2_3', 'no2_4', 'no2_5', 'no2_6',
     'co2_1', 'co2_2', 'co2_3', 'co2_4', 'co2_5', 'co2_6',
-    'relative_humidity', 'temperature'], dtype={'timestamp': np.int64, 'voc_1': np.int64, 'voc_2': np.int64, 'voc_3': np.int64, 'voc_4': np.int64, 'voc_5': np.int64, 'voc_6': np.int64, 'voc_7': np.int64, 'voc_8': np.int64,
-    'no_1': np.int64, 'no_2': np.int64, 'no_3': np.int64, 'no_4': np.int64, 'no_5': np.int64, 'no_6': np.int64,
-    'co_1': np.int64, 'co_2': np.int64, 'co_3': np.int64, 'co_4': np.int64, 'co_5': np.int64, 'co_6': np.int64,
-    'ox_1': np.int64, 'ox_2': np.int64, 'ox_3': np.int64, 'ox_4': np.int64, 'ox_5': np.int64, 'ox_6': np.int64,
-    'no2_1': np.int64, 'no2_2': np.int64, 'no2_3': np.int64, 'no2_4': np.int64, 'no2_5': np.int64, 'no2_6': np.int64,
-    'co2_1': np.int64, 'co2_2': np.int64, 'co2_3': np.int64, 'co2_4': np.int64, 'co2_5': np.int64, 'co2_6': np.int64,
-    'relative_humidity': np.int64, 'temperature': np.int64})
+    'relative_humidity', 'temperature'], dtype=np.int64)
     df1.columns = ['voc_1', 'voc_2', 'voc_3', 'voc_4', 'voc_5', 'voc_6', 'voc_7', 'voc_8',
     'no_1_working', 'no_1_aux', 'no_2_working', 'no_2_aux', 'no_3_working', 'no_3_aux',
     'co_1_working', 'co_1_aux', 'co_2_working', 'co_2_aux', 'co_3_working', 'co_3_aux',
@@ -69,6 +74,8 @@ for file in glob.glob("../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_1_2019-04*
             signal_to_ppb_1(df1, compound, sensor)
     hum = df1['relative_humidity']*0.1875
     df1['new_relative_humidity'] = 0.0375*hum - 37.7
+    temp = df1['temperature']*0.1875
+    temperature_in_degrees(df1, temp)
     filename = os.path.basename(file)
     df1.to_csv("../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocessed_"+filename)
 
@@ -84,13 +91,7 @@ for file in glob.glob("../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_2_2019-04*
     'ox_1', 'ox_2', 'ox_3', 'ox_4', 'ox_5', 'ox_6',
     'no2_1', 'no2_2', 'no2_3', 'no2_4', 'no2_5', 'no2_6',
     'co2_1', 'co2_2', 'co2_3', 'co2_4', 'co2_5', 'co2_6',
-    'relative_humidity', 'temperature'], dtype={'timestamp': np.int64, 'voc_1': np.int64, 'voc_2': np.int64, 'voc_3': np.int64, 'voc_4': np.int64, 'voc_5': np.int64, 'voc_6': np.int64, 'voc_7': np.int64, 'voc_8': np.int64,
-    'no_1': np.int64, 'no_2': np.int64, 'no_3': np.int64, 'no_4': np.int64, 'no_5': np.int64, 'no_6': np.int64,
-    'co_1': np.int64, 'co_2': np.int64, 'co_3': np.int64, 'co_4': np.int64, 'co_5': np.int64, 'co_6': np.int64,
-    'ox_1': np.int64, 'ox_2': np.int64, 'ox_3': np.int64, 'ox_4': np.int64, 'ox_5': np.int64, 'ox_6': np.int64,
-    'no2_1': np.int64, 'no2_2': np.int64, 'no2_3': np.int64, 'no2_4': np.int64, 'no2_5': np.int64, 'no2_6': np.int64,
-    'co2_1': np.int64, 'co2_2': np.int64, 'co2_3': np.int64, 'co2_4': np.int64, 'co2_5': np.int64, 'co2_6': np.int64,
-    'relative_humidity': np.int64, 'temperature': np.int64})
+    'relative_humidity', 'temperature'], dtype=np.int64)
     df2.columns = ['voc_1', 'voc_2', 'voc_3', 'voc_4', 'voc_5', 'voc_6', 'voc_7', 'voc_8',
     'no_1_working', 'no_1_aux', 'no_2_working', 'no_2_aux', 'no_3_working', 'no_3_aux',
     'co_1_working', 'co_1_aux', 'co_2_working', 'co_2_aux', 'co_3_working', 'co_3_aux',
@@ -101,6 +102,10 @@ for file in glob.glob("../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_2_2019-04*
     for compound in ('no', 'co', 'ox', 'no2'):
         for sensor in ('1', '2', '3'):
             signal_to_ppb_1(df2, compound, sensor)
+    hum = df2['relative_humidity']*0.1875
+    df2['new_relative_humidity'] = 0.0375*hum - 37.7
+    temp = df2['temperature']*0.1875
+    temperature_in_degrees(df2, temp)
     filename = os.path.basename(file)
     df2.to_csv("../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocessed_"+filename)
 
@@ -112,3 +117,13 @@ for file in glob.glob("../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_2_2019-04*
 #df1_1r = df1_1.resample("5Min").mean()
 #df1 = pd.DataFrame()
 #df1 = df1.append(df1_1r, sort=False)
+
+
+
+#{'timestamp': np.int64, 'voc_1': np.int64, 'voc_2': np.int64, 'voc_3': np.int64, 'voc_4': np.int64, 'voc_5': np.int64, 'voc_6': np.int64, 'voc_7': np.int64, 'voc_8': np.int64,
+#'no_1': np.int64, 'no_2': np.int64, 'no_3': np.int64, 'no_4': np.int64, 'no_5': np.int64, 'no_6': np.int64,
+#'co_1': np.int64, 'co_2': np.int64, 'co_3': np.int64, 'co_4': np.int64, 'co_5': np.int64, 'co_6': np.int64,
+#'ox_1': np.int64, 'ox_2': np.int64, 'ox_3': np.int64, 'ox_4': np.int64, 'ox_5': np.int64, 'ox_6': np.int64,
+#'no2_1': np.int64, 'no2_2': np.int64, 'no2_3': np.int64, 'no2_4': np.int64, 'no2_5': np.int64, 'no2_6': np.int64,
+#'co2_1': np.int64, 'co2_2': np.int64, 'co2_3': np.int64, 'co2_4': np.int64, 'co2_5': np.int64, 'co2_6': np.int64,
+#'relative_humidity': np.int64, 'temperature': np.int64}
