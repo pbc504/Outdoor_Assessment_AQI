@@ -123,7 +123,7 @@ for file in glob.glob("../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_2_2019-04-
 
 # Take median value
 def find_median(dataframe, a, b, c):
-    med_value = median([dataframe[a].iloc[0], dataframe[b].iloc[0], dataframe[c].iloc[0]])
+    med_value = np.median([dataframe[a].iloc[0], dataframe[b].iloc[0], dataframe[c].iloc[0]])
     for sensor in (a, b, c):
         diff = med_value - dataframe[sensor].iloc[0]
         if diff == 0:
