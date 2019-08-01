@@ -3,6 +3,7 @@ import pandas as pd
 import glob
 from sklearn.linear_model import LinearRegression
 import matplotlib.pyplot as plt
+import itertools
 
 ref_df = pd.read_csv("../aviva_april_2019.csv", index_col=0)
 df1 = pd.DataFrame()
