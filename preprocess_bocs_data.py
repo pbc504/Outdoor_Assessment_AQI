@@ -11,7 +11,7 @@ dtype={'TimeBeginning': 'object', '1045100_NO_29_Scaled': np.float64, '1045100_N
 
 ref_df.columns = ['NO_Scaled', 'NO2_Scaled', 'NOx_Scaled', 'O3_Scaled', 'WD_Scaled', 'TEMP_Scaled', 'HUM_Scaled', 'WINDMS_Scaled']
 
-ref_df.to_csv('../processed_aviva_april_2019.csv')
+ref_df.to_csv('../preprocessed_aviva_april_2019.csv')
 
 
 # Function to convert sensor signal to ppb for sensor array 1
@@ -45,7 +45,15 @@ def temperature_in_degrees(dataframe, temp):
     model = LinearRegression()
     model.fit(x,y)
     new_temp = temp*model.coef_ + model.intercept_
-    dataframe['new_temperature'] = new_temp
+    dataframe['temperature_in_degrees'] = new_temp
+
+# Function to covert temperature siganl to degrees in a different way
+def new_temperature_in_degrees(dataframe, Vout):
+    NTC = (Vout*10000) / (5000 - Vout)
+    inverse_T = 8.5494e-4 + 2.5731e-4*np.log(NTC) + 1.6537e-7*np.log(NTC)*np.log(NTC)*np.log(NTC)
+    T_inK = 1 / inverse_T
+    T_in_degrees = T_inK - 273.15
+    dataframe['new_temperature_in_degrees'] = T_in_degrees
 
 
 
@@ -73,9 +81,10 @@ for file in glob.glob("../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_1_2019-04*
         for sensor in ('1', '2', '3'):
             signal_to_ppb_1(df1, compound, sensor)
     hum = df1['relative_humidity']*0.1875
-    df1['new_relative_humidity'] = 0.0375*hum - 37.7
+    df1['humidity_in_percentage'] = 0.0375*hum - 37.7
     temp = df1['temperature']*0.1875
     temperature_in_degrees(df1, temp)
+    new_temperature_in_degrees(df1, temp)
     filename = os.path.basename(file)
     df1.to_csv("../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocessed_"+filename)
 
@@ -103,20 +112,16 @@ for file in glob.glob("../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_2_2019-04*
         for sensor in ('1', '2', '3'):
             signal_to_ppb_1(df2, compound, sensor)
     hum = df2['relative_humidity']*0.1875
-    df2['new_relative_humidity'] = 0.0375*hum - 37.7
+    df2['humidity_in_percentage'] = 0.0375*hum - 37.7
     temp = df2['temperature']*0.1875
     temperature_in_degrees(df2, temp)
+    new_temperature_in_degrees(df2, temp)
     filename = os.path.basename(file)
     df2.to_csv("../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocessed_"+filename)
 
 
 
 
-
-#df1.index = pd.to_datetime(df1_1.index, unit='s')
-#df1_1r = df1_1.resample("5Min").mean()
-#df1 = pd.DataFrame()
-#df1 = df1.append(df1_1r, sort=False)
 
 
 
