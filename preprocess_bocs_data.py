@@ -14,46 +14,25 @@ ref_df.columns = ['NO_Scaled', 'NO2_Scaled', 'NOx_Scaled', 'O3_Scaled', 'WD_Scal
 ref_df.to_csv('../preprocessed_aviva_april_2019.csv')
 
 
-# Function to convert sensor signal to ppb for sensor array 1
-def signal_to_ppb_1(dataframe, compound, sensor):
+# Function to convert sensor signal to ppb
+def signal_to_ppb(dataframe, compound, sensor, properties_df):
     we_signal = dataframe[compound + "_" + sensor + "_working"]
-    we_zero = properties_df1.loc[compound + '_' + sensor, 'we_zero']
+    we_zero = properties_df.loc[compound + '_' + sensor, 'we_zero']
     we = we_signal - we_zero
     ae_signal = dataframe[compound + "_" + sensor + "_aux"]
-    ae_zero = properties_df1.loc[compound + '_' + sensor, 'ae_zero']
+    ae_zero = properties_df.loc[compound + '_' + sensor, 'ae_zero']
     ae = ae_signal - ae_zero
-    sensitivity = properties_df1.loc[compound + '_' + sensor, 'sensitivity']
-    variable_name = compound + '_' + sensor
-    dataframe[variable_name] = (we - ae)/sensitivity
-
-# Function to convert sensor signal to ppb for sensor array 2
-def signal_to_ppb_2(dataframe, compound, sensor):
-    we_signal = dataframe[compound + "_" + sensor + "_working"]
-    we_zero = properties_df2.loc[compound + '_' + sensor, 'we_zero']
-    we = we_signal - we_zero
-    ae_signal = dataframe[compound + "_" + sensor + "_aux"]
-    ae_zero = properties_df2.loc[compound + '_' + sensor, 'ae_zero']
-    ae = ae_signal - ae_zero
-    sensitivity = properties_df2.loc[compound + '_' + sensor, 'sensitivity']
+    sensitivity = properties_df.loc[compound + '_' + sensor, 'sensitivity']
     variable_name = compound + '_' + sensor
     dataframe[variable_name] = (we - ae)/sensitivity
 
 # Function to convert temperature signal to degrees
-def temperature_in_degrees(dataframe, temp):
-    x = np.array([4757, 4595, 4361, 4068, 3657, 3210, 2736, 2500, 2270, 1842, 1469, 1158, 911, 715]).reshape((-1,1))
-    y = np.array([-40, -30, -20, -10, 0, 10, 20, 25, 30, 40, 50, 60, 70, 80])
-    model = LinearRegression()
-    model.fit(x,y)
-    new_temp = temp*model.coef_ + model.intercept_
-    dataframe['temperature_in_degrees'] = new_temp
-
-# Function to covert temperature siganl to degrees in a different way
-def new_temperature_in_degrees(dataframe, Vout):
+def temperature_in_degrees(dataframe, Vout):
     NTC = (Vout*10000) / (5000 - Vout)
     inverse_T = 8.5494e-4 + 2.5731e-4*np.log(NTC) + 1.6537e-7*np.log(NTC)*np.log(NTC)*np.log(NTC)
     T_inK = 1 / inverse_T
-    T_in_degrees = T_inK - 273.15
-    dataframe['new_temperature_in_degrees'] = T_in_degrees
+    new_temp = T_inK - 273.15
+    dataframe['temperature_in_degrees'] = new_temp
 
 
 
@@ -78,12 +57,11 @@ for file in glob.glob("../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_1_2019-04-
     'relative_humidity', 'temperature']
     for compound in ('no', 'co', 'ox', 'no2'):
         for sensor in ('1', '2', '3'):
-            signal_to_ppb_1(df1, compound, sensor)
+            signal_to_ppb(df1, compound, sensor, properties_df1)
     hum = df1['relative_humidity']*0.1875
     df1['humidity_in_percentage'] = 0.0375*hum - 37.7
     temp = df1['temperature']*0.1875
     temperature_in_degrees(df1, temp)
-    new_temperature_in_degrees(df1, temp)
     filename = os.path.basename(file)
     df1.to_csv("../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocessed_"+filename)
 
@@ -110,18 +88,17 @@ for file in glob.glob("../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_2_2019-04-
     'relative_humidity', 'temperature']
     for compound in ('no', 'co', 'ox', 'no2'):
         for sensor in ('1', '2', '3'):
-            signal_to_ppb_1(df2, compound, sensor)
+            signal_to_ppb(df2, compound, sensor, properties_df2)
     hum = df2['relative_humidity']*0.1875
     df2['humidity_in_percentage'] = 0.0375*hum - 37.7
     temp = df2['temperature']*0.1875
     temperature_in_degrees(df2, temp)
-    new_temperature_in_degrees(df2, temp)
     filename = os.path.basename(file)
     df2.to_csv("../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocessed_"+filename)
 
 
 
-# Take median value
+# Function to align sensor data to median value
 def find_median(dataframe, a, b, c):
     med_value = np.median([dataframe[a].iloc[0], dataframe[b].iloc[0], dataframe[c].iloc[0]])
     for sensor in (a, b, c):
@@ -130,8 +107,3 @@ def find_median(dataframe, a, b, c):
             dataframe['med_' + sensor] = dataframe[sensor]
         else:
             dataframe['med_' + sensor] = dataframe[sensor] + diff
-
-
-
-
-#median([df1['no_3'].iloc[0], df1['no_2'].iloc[0], df1['no_1'].iloc[0]])
