@@ -32,13 +32,44 @@ def temperature_in_degrees(dataframe, Vout):
     inverse_T = 8.5494e-4 + 2.5731e-4*np.log(NTC) + 1.6537e-7*np.log(NTC)*np.log(NTC)*np.log(NTC)
     T_inK = 1 / inverse_T
     new_temp = T_inK - 273.15
-    dataframe['temperature_in_degrees'] = new_temp
+    dataframe['temperature_in_kelvin'] = T_inK
+    dataframe['temperature_in_celsius'] = new_temp
 
+
+# Function to convert co2 signal to concentration in ppm
+def co2_concentration(properties_df, sensor, dataframe):
+    zero_co2 = properties_df.loc[sensor, 'active_zero'] / properties_df.loc[sensor, 'reference_zero']
+    # Calculate the absorbance from the temperature compensated normalized ratio
+    temp_comp_ratio = dataframe[sensor + '_active'] / (dataframe[sensor + '_reference']*zero_co2)
+    if (dataframe['temperature_in_kelvin'] > properties_df.loc[sensor, 'zero_temperature']).all():
+        temp_comp_ratio = temp_comp_ratio*(1 + (properties_df.loc[sensor, 'positive_zero_Tempcomp']*(dataframe['temperature_in_kelvin'] - properties_df.loc[sensor, 'zero_temperature'])))
+    elif (dataframe['temperature_in_kelvin'] < properties_df.loc[sensor, 'zero_temperature']).all():
+        temp_comp_ratio = temp_comp_ratio*(1 + (properties_df.loc[sensor, 'negative_zero_Tempcomp']*(dataframe['temperature_in_kelvin'] - properties_df.loc[sensor, 'zero_temperature'])))
+   # Get absorbance value
+    absorbance = 1 - temp_comp_ratio
+   # Calculate Span correction
+    temp_comp_span = properties_df.loc[sensor, 'span']
+    if (dataframe['temperature_in_kelvin'] > properties_df.loc[sensor, 'span_temperature']).all():
+        temp_comp_span = temp_comp_span*(1 + (properties_df.loc[sensor, 'positive_span_Tempcomp']*(dataframe['temperature_in_kelvin'] - properties_df.loc[sensor, 'span_temperature'])))
+    elif (dataframe['temperature_in_kelvin'] < properties_df.loc[sensor, 'span_temperature']).all():
+        temp_comp_span = temp_comp_span*(1 + (properties_df.loc[sensor, 'negative_span_Tempcomp']*(dataframe['temperature_in_kelvin'] - properties_df.loc[sensor, 'span_temperature'])))
+    # Calculate the value for conversion
+    value = absorbance / temp_comp_span
+    value2 = temp_comp_span / absorbance
+    # Calculate concentration using: concentration = -(ln(1-Absorbance/span)exponent)^(1/powerterm)
+    value2 = - np.log(1 - value2)
+    value2 = value2 / properties_df.loc[sensor, 'exponent']
+    value2 = value2**(1 / properties_df.loc[sensor, 'powerterm'])
+    concentration = value2 * (dataframe['temperature_in_kelvin'] / properties_df.loc[sensor, 'span_temperature'])
+    dataframe[sensor] = concentration
+
+#=======================================================================================================================
 
 
 # Process sensor_array_1 data
 # Select columns, chage their names, covert sensor signal to ppb, temperature to degrees and relative humidity to percentage. Then write new file with the converted values added.
 properties_df1 = pd.read_csv("../sensor_array_1_electronic_properties.csv", index_col=0)
+co2_properties_1 = pd.read_csv("../sensor_array_1_co2_properties.csv", index_col=0)
 
 for file in glob.glob("../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_1_2019-04-01*"):
     df1= pd.read_csv(file, header=0, index_col=0, usecols=['timestamp', 'voc_1', 'voc_2', 'voc_3', 'voc_4', 'voc_5', 'voc_6', 'voc_7', 'voc_8',
@@ -53,7 +84,7 @@ for file in glob.glob("../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_1_2019-04-
     'co_1_working', 'co_1_aux', 'co_2_working', 'co_2_aux', 'co_3_working', 'co_3_aux',
     'ox_1_working', 'ox_1_aux', 'ox_2_working', 'ox_2_aux', 'ox_3_working', 'ox_3_aux',
     'no2_1_working', 'no2_1_aux', 'no2_2_working', 'no2_2_aux', 'no2_3_working', 'no2_3_aux',
-    'co2_1', 'co2_2', 'co2_3', 'co2_4', 'co2_5', 'co2_6',
+    'co2_1_active', 'co2_1_reference', 'co2_2_active', 'co2_2_reference', 'co2_3_active', 'co2_3_reference',
     'relative_humidity', 'temperature']
     for compound in ('no', 'co', 'ox', 'no2'):
         for sensor in ('1', '2', '3'):
@@ -62,6 +93,9 @@ for file in glob.glob("../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_1_2019-04-
     df1['humidity_in_percentage'] = 0.0375*hum - 37.7
     temp = df1['temperature']*0.1875
     temperature_in_degrees(df1, temp)
+    co2_concentration(co2_properties_1, 'co2_1', df1)
+    co2_concentration(co2_properties_1, 'co2_2', df1)
+    co2_concentration(co2_properties_1, 'co2_3', df1)
     filename = os.path.basename(file)
     df1.to_csv("../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocessed_"+filename)
 
@@ -70,6 +104,7 @@ for file in glob.glob("../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_1_2019-04-
 # Process sensor_array_2 data
 # Select columns, chage their names, covert sensor signal to ppb, temperature to degrees and relative humidity to percentage. Then write new file with the converted values added.
 properties_df2 = pd.read_csv("../sensor_array_2_electronic_properties.csv", index_col=0)
+co2_properties_2 = pd.read_csv("../sensor_array_2_co2_properties.csv", index_col=0)
 
 for file in glob.glob("../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_2_2019-04-01*"):
     df2= pd.read_csv(file, header=0, index_col=0, usecols=['timestamp', 'voc_1', 'voc_2', 'voc_3', 'voc_4', 'voc_5', 'voc_6', 'voc_7', 'voc_8',
@@ -84,7 +119,7 @@ for file in glob.glob("../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_2_2019-04-
     'co_1_working', 'co_1_aux', 'co_2_working', 'co_2_aux', 'co_3_working', 'co_3_aux',
     'ox_1_working', 'ox_1_aux', 'ox_2_working', 'ox_2_aux', 'ox_3_working', 'ox_3_aux',
     'no2_1_working', 'no2_1_aux', 'no2_2_working', 'no2_2_aux', 'no2_3_working', 'no2_3_aux',
-    'co2_1', 'co2_2', 'co2_3', 'co2_4', 'co2_5', 'co2_6',
+    'co2_1_active', 'co2_1_reference', 'co2_2_active', 'co2_2_reference', 'co2_3_active', 'co2_3_reference',
     'relative_humidity', 'temperature']
     for compound in ('no', 'co', 'ox', 'no2'):
         for sensor in ('1', '2', '3'):
@@ -93,17 +128,23 @@ for file in glob.glob("../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_2_2019-04-
     df2['humidity_in_percentage'] = 0.0375*hum - 37.7
     temp = df2['temperature']*0.1875
     temperature_in_degrees(df2, temp)
+    co2_concentration(co2_properties_2, 'co2_1', df2)
+    co2_concentration(co2_properties_2, 'co2_2', df2)
+    co2_concentration(co2_properties_2, 'co2_3', df2)
     filename = os.path.basename(file)
     df2.to_csv("../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocessed_"+filename)
 
 
 
 # Function to align sensor data to median value
-def find_median(dataframe, a, b, c):
+def find_median(dataframe, a, b, c, finalname):
     med_value = np.median([dataframe[a].iloc[0], dataframe[b].iloc[0], dataframe[c].iloc[0]])
+    med_df = pd.DataFrame()
     for sensor in (a, b, c):
         diff = med_value - dataframe[sensor].iloc[0]
         if diff == 0:
-            dataframe['med_' + sensor] = dataframe[sensor]
+            med_df['med_' + sensor] = dataframe[sensor]
         else:
-            dataframe['med_' + sensor] = dataframe[sensor] + diff
+            med_df['med_' + sensor] = dataframe[sensor] + diff
+    #new_med = np.median(med_df,axis=0)
+    #dataframe[finalname] = new_med
