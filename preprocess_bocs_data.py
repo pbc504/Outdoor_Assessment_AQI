@@ -62,11 +62,10 @@ def co2_concentration(properties_df, sensor, dataframe):
     value2 = value2**(1 / properties_df.loc[sensor, 'powerterm'])
     value2 = abs(value2)
     concentration = value2 * (dataframe['temperature_in_kelvin'] / properties_df.loc[sensor, 'span_temperature'])
-#    dataframe[sensor] = concentration
-    print(concentration)
+    dataframe[sensor] = concentration
 
 
-# Function to align sensor data to median value
+# Function to align sensor data to median value, then take median value for every timestamp.
 def find_median(dataframe, finalname, a, b, c):
     med_value = np.median([dataframe[a].iloc[0], dataframe[b].iloc[0], dataframe[c].iloc[0]])
     med_df = pd.DataFrame()
@@ -79,7 +78,7 @@ def find_median(dataframe, finalname, a, b, c):
     new_med = np.median(med_df,axis=1)
     dataframe[finalname] = new_med
 
-# Function to align voc sensors data to median value
+# Function to align voc sensors data to median value, then take median value for every timestamp.
 def find_voc_median(dataframe, finalname, a, b, c, d, e, f, g, h):
     med_value = np.median([dataframe[a].iloc[0], dataframe[b].iloc[0], dataframe[c].iloc[0], dataframe[d].iloc[0], dataframe[e].iloc[0], dataframe[f].iloc[0], dataframe[g].iloc[0], dataframe[h].iloc[0]])
     med_df = pd.DataFrame()
