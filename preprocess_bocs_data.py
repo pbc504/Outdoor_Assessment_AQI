@@ -60,8 +60,38 @@ def co2_concentration(properties_df, sensor, dataframe):
     value2 = - np.log(1 - value2)
     value2 = value2 / properties_df.loc[sensor, 'exponent']
     value2 = value2**(1 / properties_df.loc[sensor, 'powerterm'])
+    value2 = abs(value2)
     concentration = value2 * (dataframe['temperature_in_kelvin'] / properties_df.loc[sensor, 'span_temperature'])
-    dataframe[sensor] = concentration
+#    dataframe[sensor] = concentration
+    print(concentration)
+
+
+# Function to align sensor data to median value
+def find_median(dataframe, finalname, a, b, c):
+    med_value = np.median([dataframe[a].iloc[0], dataframe[b].iloc[0], dataframe[c].iloc[0]])
+    med_df = pd.DataFrame()
+    for sensor in (a, b, c):
+        diff = med_value - dataframe[sensor].iloc[0]
+        if diff == 0:
+            med_df['med_' + sensor] = dataframe[sensor]
+        else:
+            med_df['med_' + sensor] = dataframe[sensor] + diff
+    new_med = np.median(med_df,axis=1)
+    dataframe[finalname] = new_med
+
+# Function to align voc sensors data to median value
+def find_voc_median(dataframe, finalname, a, b, c, d, e, f, g, h):
+    med_value = np.median([dataframe[a].iloc[0], dataframe[b].iloc[0], dataframe[c].iloc[0], dataframe[d].iloc[0], dataframe[e].iloc[0], dataframe[f].iloc[0], dataframe[g].iloc[0], dataframe[h].iloc[0]])
+    med_df = pd.DataFrame()
+    for sensor in (a, b, c, d, e, f, g, h):
+        diff = med_value - dataframe[sensor].iloc[0]
+        if diff == 0:
+            med_df['med_' + sensor] = dataframe[sensor]
+        else:
+            med_df['med_' + sensor] = dataframe[sensor] + diff
+    new_med = np.median(med_df, axis=1)
+    dataframe[finalname] = new_med
+
 
 #=======================================================================================================================
 
@@ -86,16 +116,22 @@ for file in glob.glob("../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_1_2019-04-
     'no2_1_working', 'no2_1_aux', 'no2_2_working', 'no2_2_aux', 'no2_3_working', 'no2_3_aux',
     'co2_1_active', 'co2_1_reference', 'co2_2_active', 'co2_2_reference', 'co2_3_active', 'co2_3_reference',
     'relative_humidity', 'temperature']
+    df1 = df1*0.1875
     for compound in ('no', 'co', 'ox', 'no2'):
         for sensor in ('1', '2', '3'):
             signal_to_ppb(df1, compound, sensor, properties_df1)
-    hum = df1['relative_humidity']*0.1875
-    df1['humidity_in_percentage'] = 0.0375*hum - 37.7
-    temp = df1['temperature']*0.1875
+    hum = df1['relative_humidity']
+    df1['humidity_in_percentage'] = 0.0375*df1['relative_humidity'] - 37.7
+    temp = df1['temperature']
     temperature_in_degrees(df1, temp)
-    co2_concentration(co2_properties_1, 'co2_1', df1)
-    co2_concentration(co2_properties_1, 'co2_2', df1)
-    co2_concentration(co2_properties_1, 'co2_3', df1)
+#    co2_concentration(co2_properties_1, 'co2_1', df1)
+#    co2_concentration(co2_properties_1, 'co2_2', df1)
+#    co2_concentration(co2_properties_1, 'co2_3', df1)
+    find_median(df1, 'NO', 'no_1', 'no_2', 'no_2')
+    find_median(df1, 'CO', 'co_1', 'co_2', 'co_2')
+    find_median(df1, 'Ox', 'ox_1', 'ox_2', 'ox_2')
+    find_median(df1, 'NO2', 'no2_1', 'no2_2', 'no2_2')
+    find_voc_median(df1, 'VOC', 'voc_1', 'voc_2', 'voc_3', 'voc_4', 'voc_5', 'voc_6', 'voc_7', 'voc_8')
     filename = os.path.basename(file)
     df1.to_csv("../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocessed_"+filename)
 
@@ -121,30 +157,21 @@ for file in glob.glob("../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_2_2019-04-
     'no2_1_working', 'no2_1_aux', 'no2_2_working', 'no2_2_aux', 'no2_3_working', 'no2_3_aux',
     'co2_1_active', 'co2_1_reference', 'co2_2_active', 'co2_2_reference', 'co2_3_active', 'co2_3_reference',
     'relative_humidity', 'temperature']
+    df2 = df2*0.1875
     for compound in ('no', 'co', 'ox', 'no2'):
         for sensor in ('1', '2', '3'):
             signal_to_ppb(df2, compound, sensor, properties_df2)
-    hum = df2['relative_humidity']*0.1875
+    hum = df2['relative_humidity']
     df2['humidity_in_percentage'] = 0.0375*hum - 37.7
-    temp = df2['temperature']*0.1875
+    temp = df2['temperature']
     temperature_in_degrees(df2, temp)
-    co2_concentration(co2_properties_2, 'co2_1', df2)
-    co2_concentration(co2_properties_2, 'co2_2', df2)
-    co2_concentration(co2_properties_2, 'co2_3', df2)
+#    co2_concentration(co2_properties_2, 'co2_1', df2)
+#    co2_concentration(co2_properties_2, 'co2_2', df2)
+#    co2_concentration(co2_properties_2, 'co2_3', df2)
+    find_median(df2, 'NO', 'no_1', 'no_2', 'no_2')
+    find_median(df2, 'CO', 'co_1', 'co_2', 'co_2')
+    find_median(df2, 'Ox', 'ox_1', 'ox_2', 'ox_2')
+    find_median(df2, 'NO2', 'no2_1', 'no2_2', 'no2_2')
+    find_voc_median(df2, 'VOC', 'voc_1', 'voc_2', 'voc_3', 'voc_4', 'voc_5', 'voc_6', 'voc_7', 'voc_8')
     filename = os.path.basename(file)
     df2.to_csv("../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocessed_"+filename)
-
-
-
-# Function to align sensor data to median value
-def find_median(dataframe, a, b, c, finalname):
-    med_value = np.median([dataframe[a].iloc[0], dataframe[b].iloc[0], dataframe[c].iloc[0]])
-    med_df = pd.DataFrame()
-    for sensor in (a, b, c):
-        diff = med_value - dataframe[sensor].iloc[0]
-        if diff == 0:
-            med_df['med_' + sensor] = dataframe[sensor]
-        else:
-            med_df['med_' + sensor] = dataframe[sensor] + diff
-    #new_med = np.median(med_df,axis=0)
-    #dataframe[finalname] = new_med
