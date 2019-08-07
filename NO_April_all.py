@@ -20,7 +20,7 @@ for file in glob.glob("../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocess
 #    'co2_1_active', 'co2_1_reference', 'co2_2_active', 'co2_2_reference', 'co2_3_active', 'co2_3_reference',
     'humidity_in_percentage', 'temperature_in_celsius'],
     dtype={'timestamp': np.int64, 'VOC': np.float64, 'NO': np.float64, 'CO': np.float64, 'Ox': np.float64, 'NO2': np.float64,
-#    'co2_1': np.int64, 'co2_2': np.int64, 'co2_3': np.int64, 'co2_4': np.int64, 'co2_5': np.int64, 'co2_6': np.int64,
+#    'co2_1': np.float64, 'co2_2': np.float64, 'co2_3': np.float64, 'co2_4': np.float64, 'co2_5': np.float64, 'co2_6': np.float64,
     'humidity_in_percentage': np.float64, 'temperature_in_celsius': np.float64})
     df1_1.index = pd.to_datetime(df1_1.index, unit='s')
     df1_1r = df1_1.resample("5Min").mean()
@@ -34,7 +34,7 @@ for file in glob.glob("../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocess
 #    'co2_1_active', 'co2_1_reference', 'co2_2_active', 'co2_2_reference', 'co2_3_active', 'co2_3_reference',
     'humidity_in_percentage', 'temperature_in_celsius'],
     dtype={'timestamp': np.int64, 'VOC': np.float64, 'NO': np.float64, 'CO': np.float64, 'Ox': np.float64, 'NO2': np.float64,
-#    'co2_1': np.int64, 'co2_2': np.int64, 'co2_3': np.int64, 'co2_4': np.int64, 'co2_5': np.int64, 'co2_6': np.int64,
+#    'co2_1': np.float64, 'co2_2': np.float64, 'co2_3': np.float64, 'co2_4': np.float64, 'co2_5': np.float64, 'co2_6': np.float64,
     'humidity_in_percentage': np.float64, 'temperature_in_celsius': np.float64})
     df2_1.index = pd.to_datetime(df2_1.index, unit='s')
     df2_1r = df2_1.resample("5Min").mean()
@@ -66,38 +66,28 @@ calculate_linear_regression(joint_NO, ref_df['NO_Scaled'])
 print()
 
 
-# Function to append results
-results2 = pd.DataFrame(columns=['Truth','Predictors', 'Intercept', 'Slope', 'r_sq'])
 
-def combos_results(truth, predictors, results_df):
+# Function to append results of linear regression for different combinations
+results = pd.DataFrame(columns=['Truth','Predictors', 'Intercept', 'Slope', 'r_sq'])
+
+def combos_results(dataframe,combo, truth, results_df):
+    predictors = dataframe[list(combo)]
     x = predictors.values
-    y = truth.values
+    y = ref_df[truth].values
     model = LinearRegression().fit(x,y)
     r_sq = model.score(x,y)
-    results_df = results_df.append({'Truth': 'NO_Scaled', 'Predictors': combo, 'Intercept': model.intercept_, 'Slope': model.coef_, 'r_sq': r_sq}, ignore_index=True)
-
-
-for combo in itertools.combinations(df1.columns, 2):
-    combos_results(ref_df['NO_Scaled'], df1[list(combo)], results2)
-
-print(results2)
-
-
-
+    return results_df.append({'Truth': truth, 'Predictors': combo, 'Intercept': model.intercept_, 'Slope': model.coef_, 'r_sq': r_sq}, ignore_index=True)
 
 
 ## Tries different combinations of predictors to predict NO. Saves results to a dataframe
-results = pd.DataFrame(columns=['Truth','Predictors', 'Intercept', 'Slope', 'r_sq'])
 for combo in itertools.combinations(df1.columns, 1):
-    x = df1[list(combo)].values
-    y = ref_df['NO_Scaled'].values
-    model = LinearRegression().fit(x,y)
-    r_sq = model.score(x,y)
-    results = results.append({'Truth': 'NO_Scaled', 'Predictors': combo, 'Intercept': model.intercept_, 'Slope': model.coef_, 'r_sq': r_sq}, ignore_index=True)
+    results = combos_results(df1, combo, 'NO_Scaled', results)
+    results = combos_results(df1, combo, 'NO2_Scaled', results)
+    results = combos_results(df1, combo, 'NOx_Scaled', results)
+    results = combos_results(df1, combo, 'O3_Scaled', results)
 
 for combo in itertools.combinations(df1.columns, 2):
-    x = df1[list(combo)].values
-    y = ref_df['NO_Scaled'].values
-    model = LinearRegression().fit(x,y)
-    r_sq = model.score(x,y)
-    results = results.append({'Truth': 'NO_Scaled', 'Predictors': combo, 'Intercept': model.intercept_, 'Slope': model.coef_, 'r_sq': r_sq}, ignore_index=True)
+    results = combos_results(df1, combo, 'NO_Scaled', results)
+
+results.to_csv('../bocs_aviva_trained_models_april_2019.csv')
+print(results)
