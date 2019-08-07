@@ -54,44 +54,50 @@ def calculate_linear_regression(predictors, truth):
     print("Slope: ", model.coef_)
 
 
-# Performs LinearRegression for reference NO vs no_1 from sensor array 1
+# Performs LinearRegression for reference NO vs no from sensor array 1
 calculate_linear_regression(df1[['NO']], ref_df['NO_Scaled'])
 
-# Perform LinearRegression for reference NOx vs no_1 from sensor array 1
-calculate_linear_regression(df1[['NO']], ref_df['NOx_Scaled'])
-
-# Performs Multiple regression for reference NO vs no_1 and temperature
-calculate_linear_regression(df1[['NO', 'temperature_in_celsius']], ref_df['NO_Scaled'])
-
-# Performs Multiple regression for reference NO vs no_1, relative humidity and temperature
+# Performs Multiple regression for reference NO vs no, relative humidity and temperature
 calculate_linear_regression(df1[['NO', 'humidity_in_percentage', 'temperature_in_celsius']], ref_df['NO_Scaled'])
 
-# Performs Multiple regression for reference NOx vs no_1, relative humidity and temperature
-calculate_linear_regression(df1[['NO', 'humidity_in_percentage', 'temperature_in_celsius']], ref_df['NOx_Scaled'])
-
-# Performs Multiple regression for reference NO vs all 6 no sensors from both sensor arrays, relative_humidity and temperature
+# Performs Multiple regression for reference NO vs the no value from both sensor arrays, relative_humidity and temperature
 joint_NO = pd.concat([df1[['NO', 'humidity_in_percentage', 'temperature_in_celsius']], df2['NO']], axis=1, sort=False)
 calculate_linear_regression(joint_NO, ref_df['NO_Scaled'])
+print()
 
 
+# Function to append results
+results2 = pd.DataFrame(columns=['Truth','Predictors', 'Intercept', 'Slope', 'r_sq'])
 
-# Modified function to calculate linear regression for itertools combinations
-def calculate_linear_regression_for_combo(predictors, truth):
+def combos_results(truth, predictors, results_df):
     x = predictors.values
     y = truth.values
     model = LinearRegression().fit(x,y)
     r_sq = model.score(x,y)
-    if r_sq > 0.40:
-        print()
-        print('Predictors:',combo)
-        print("R^2 = ",r_sq)
-        print("Intercept: ", model.intercept_)
-        print("Slope: ", model.coef_)
+    results_df = results_df.append({'Truth': 'NO_Scaled', 'Predictors': combo, 'Intercept': model.intercept_, 'Slope': model.coef_, 'r_sq': r_sq}, ignore_index=True)
 
 
-# Tries different combinations of predictors
 for combo in itertools.combinations(df1.columns, 2):
-    calculate_linear_regression_for_combo(df1[list(combo)], ref_df['NO_Scaled'])
+    combos_results(ref_df['NO_Scaled'], df1[list(combo)], results2)
 
-for combo in itertools.combinations(df1.columns, 7):
-    calculate_linear_regression_for_combo(df1[list(combo)], ref_df['NO_Scaled'])
+print(results2)
+
+
+
+
+
+## Tries different combinations of predictors to predict NO. Saves results to a dataframe
+results = pd.DataFrame(columns=['Truth','Predictors', 'Intercept', 'Slope', 'r_sq'])
+for combo in itertools.combinations(df1.columns, 1):
+    x = df1[list(combo)].values
+    y = ref_df['NO_Scaled'].values
+    model = LinearRegression().fit(x,y)
+    r_sq = model.score(x,y)
+    results = results.append({'Truth': 'NO_Scaled', 'Predictors': combo, 'Intercept': model.intercept_, 'Slope': model.coef_, 'r_sq': r_sq}, ignore_index=True)
+
+for combo in itertools.combinations(df1.columns, 2):
+    x = df1[list(combo)].values
+    y = ref_df['NO_Scaled'].values
+    model = LinearRegression().fit(x,y)
+    r_sq = model.score(x,y)
+    results = results.append({'Truth': 'NO_Scaled', 'Predictors': combo, 'Intercept': model.intercept_, 'Slope': model.coef_, 'r_sq': r_sq}, ignore_index=True)
