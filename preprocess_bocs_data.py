@@ -65,7 +65,7 @@ def co2_concentration(properties_df, sensor, dataframe):
     dataframe[sensor] = concentration
 
 
-# Function to align sensor data to median value, then take median value for every timestamp.
+# Function to align 3 sensor data to median value, then take median value for every timestamp.
 def find_median(dataframe, finalname, a, b, c):
     med_value = np.median([dataframe[a].iloc[0], dataframe[b].iloc[0], dataframe[c].iloc[0]])
     med_df = pd.DataFrame()
@@ -126,6 +126,7 @@ for file in glob.glob("../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_1_2019-04*
 #    co2_concentration(co2_properties_1, 'co2_1', df1)
 #    co2_concentration(co2_properties_1, 'co2_2', df1)
 #    co2_concentration(co2_properties_1, 'co2_3', df1)
+#   find_median(df1, 'CO2', 'co2_1', 'co2_2', 'co2_3')
     find_median(df1, 'NO', 'no_1', 'no_2', 'no_2')
     find_median(df1, 'CO', 'co_1', 'co_2', 'co_2')
     find_median(df1, 'Ox', 'ox_1', 'ox_2', 'ox_2')
@@ -167,6 +168,7 @@ for file in glob.glob("../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_2_2019-04*
 #    co2_concentration(co2_properties_2, 'co2_1', df2)
 #    co2_concentration(co2_properties_2, 'co2_2', df2)
 #    co2_concentration(co2_properties_2, 'co2_3', df2)
+#   find_median(df2, 'CO2', 'co2_1', 'co2_2', 'co2_3')
     find_median(df2, 'NO', 'no_1', 'no_2', 'no_2')
     find_median(df2, 'CO', 'co_1', 'co_2', 'co_2')
     find_median(df2, 'Ox', 'ox_1', 'ox_2', 'ox_2')
