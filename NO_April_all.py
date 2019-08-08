@@ -68,7 +68,7 @@ print()
 
 
 # Function to append results of linear regression for different combinations
-results = pd.DataFrame(columns=['Truth','Predictors', 'Intercept', 'Slope', 'r_sq'])
+results = pd.DataFrame(columns=['Truth','Predictors', 'Intercept', 'Slope', 'Slope2', 'r_sq'])
 
 def combos_results(dataframe,combo, truth, results_df):
     predictors = dataframe[list(combo)]
@@ -76,7 +76,14 @@ def combos_results(dataframe,combo, truth, results_df):
     y = ref_df[truth].values
     model = LinearRegression().fit(x,y)
     r_sq = model.score(x,y)
-    return results_df.append({'Truth': truth, 'Predictors': combo, 'Intercept': model.intercept_, 'Slope': model.coef_, 'r_sq': r_sq}, ignore_index=True)
+    coefficient = model.coef_
+    if len(coefficient) == 1:
+        coefficient = model.coef_.item()
+        coefficient2 = 0
+    elif len(coefficient) ==2:
+        coefficient = model.coef_.item(0)
+        coefficient2 = model.coef_.item(1)
+    return results_df.append({'Truth': truth, 'Predictors': combo, 'Intercept': model.intercept_, 'Slope': coefficient, 'Slope2': coefficient2, 'r_sq': r_sq}, ignore_index=True)
 
 
 ## Tries different combinations of predictors to predict NO. Saves results to a dataframe
@@ -90,4 +97,3 @@ for combo in itertools.combinations(df1.columns, 2):
     results = combos_results(df1, combo, 'NO_Scaled', results)
 
 results.to_csv('../bocs_aviva_trained_models_april_2019.csv')
-print(results)
