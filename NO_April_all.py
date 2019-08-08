@@ -68,9 +68,9 @@ print()
 
 
 # Function to append results of linear regression for different combinations
-results = pd.DataFrame(columns=['Truth','Predictor', 'Predictor2', 'Intercept', 'Slope', 'Slope2', 'r_sq'])
+results = pd.DataFrame(columns=['Truth', 'Sensor_Array', 'Predictor', 'Predictor2', 'Intercept', 'Slope', 'Slope2', 'r_sq'])
 
-def combos_results(dataframe,combo, truth, results_df):
+def combos_results(dataframe,combo, truth, results_df, sensor_array):
     predictors = dataframe[list(combo)]
     x = predictors.values
     y = ref_df[truth].values
@@ -84,17 +84,29 @@ def combos_results(dataframe,combo, truth, results_df):
     elif len(combo) == 2:
         predictor2 = combo[1]
         coefficient2 = model.coef_.item(1)
-    return results_df.append({'Truth': truth, 'Predictor': predictor, 'Predictor2': predictor2, 'Intercept': model.intercept_, 'Slope': coefficient, 'Slope2': coefficient2, 'r_sq': r_sq}, ignore_index=True)
+    return results_df.append({'Truth': truth, 'Sensor_Array': sensor_array, 'Predictor': predictor, 'Predictor2': predictor2, 'Intercept': model.intercept_, 'Slope': coefficient, 'Slope2': coefficient2, 'r_sq': r_sq}, ignore_index=True)
 
 
 ## Tries different combinations of predictors to predict NO. Saves results to a dataframe
 for combo in itertools.combinations(df1.columns, 1):
-    results = combos_results(df1, combo, 'NO_Scaled', results)
-    results = combos_results(df1, combo, 'NO2_Scaled', results)
-    results = combos_results(df1, combo, 'NOx_Scaled', results)
-    results = combos_results(df1, combo, 'O3_Scaled', results)
+    results = combos_results(df1, combo, 'NO_Scaled', results, 1)
+    results = combos_results(df1, combo, 'NO2_Scaled', results, 1)
+    results = combos_results(df1, combo, 'NOx_Scaled', results, 1)
+    results = combos_results(df1, combo, 'O3_Scaled', results, 1)
+
 
 for combo in itertools.combinations(df1.columns, 2):
-    results = combos_results(df1, combo, 'NO_Scaled', results)
+    results = combos_results(df1, combo, 'NO_Scaled', results, 1)
+    results = combos_results(df1, combo, 'NO2_Scaled', results, 1)
+    results = combos_results(df1, combo, 'NOx_Scaled', results, 1)
+    results = combos_results(df1, combo, 'O3_Scaled', results, 1)
+
+
+for combo in itertools.combinations(df1.columns, 1):
+    results = combos_results(df2, combo, 'NO_Scaled', results, 2)
+    results = combos_results(df2, combo, 'NO2_Scaled', results, 2)
+    results = combos_results(df2, combo, 'NOx_Scaled', results, 2)
+    results = combos_results(df2, combo, 'O3_Scaled', results, 2)
+
 
 results.to_csv('../bocs_aviva_trained_models_april_2019.csv')
