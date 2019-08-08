@@ -68,7 +68,7 @@ print()
 
 
 # Function to append results of linear regression for different combinations
-results = pd.DataFrame(columns=['Truth','Predictors', 'Intercept', 'Slope', 'Slope2', 'r_sq'])
+results = pd.DataFrame(columns=['Truth','Predictor', 'Predictor2', 'Intercept', 'Slope', 'Slope2', 'r_sq'])
 
 def combos_results(dataframe,combo, truth, results_df):
     predictors = dataframe[list(combo)]
@@ -76,14 +76,15 @@ def combos_results(dataframe,combo, truth, results_df):
     y = ref_df[truth].values
     model = LinearRegression().fit(x,y)
     r_sq = model.score(x,y)
-    coefficient = model.coef_
-    if len(coefficient) == 1:
-        coefficient = model.coef_.item()
+    coefficient = model.coef_.item(0)
+    predictor = combo[0]
+    if len(combo) == 1:
+        predictor2 = 0
         coefficient2 = 0
-    elif len(coefficient) ==2:
-        coefficient = model.coef_.item(0)
+    elif len(combo) == 2:
+        predictor2 = combo[1]
         coefficient2 = model.coef_.item(1)
-    return results_df.append({'Truth': truth, 'Predictors': combo, 'Intercept': model.intercept_, 'Slope': coefficient, 'Slope2': coefficient2, 'r_sq': r_sq}, ignore_index=True)
+    return results_df.append({'Truth': truth, 'Predictor': predictor, 'Predictor2': predictor2, 'Intercept': model.intercept_, 'Slope': coefficient, 'Slope2': coefficient2, 'r_sq': r_sq}, ignore_index=True)
 
 
 ## Tries different combinations of predictors to predict NO. Saves results to a dataframe
