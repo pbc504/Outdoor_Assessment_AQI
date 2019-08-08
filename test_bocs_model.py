@@ -88,10 +88,30 @@ for file in glob.glob("../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocess
     may_df2 = may_df2.append(df2_1r, sort=False)
 
 # Match start and finish of datalog for may
-may_ref_df = may_ref_df.iloc[:-1, ]
-may_diff_len_1 = len(may_df1) - len(may_ref_df)
-may_df1 = may_df1.iloc[:-may_diff_len_1, ]
-may_diff_len_2 = len(may_df2) - len(may_ref_df)
-may_df2 = may_df2.iloc[:-march_diff_len_2, ]
+#may_ref_df = may_ref_df.iloc[:-1, ]
+#may_diff_len_1 = len(may_df1) - len(may_ref_df)
+#may_df1 = may_df1.iloc[:-may_diff_len_1, ]
+#may_diff_len_2 = len(may_df2) - len(may_ref_df)
+#may_df2 = may_df2.iloc[:-march_diff_len_2, ]
 
-#==================================================================================
+#================================================================================================================================================
+
+results_df = pd.read_csv("../bocs_aviva_trained_models_april_2019.csv", index_col=0)
+
+# Evaluating NO model with NO and NO2 from April
+y = march_ref_df['NO_Scaled']
+x = march_df1['NO']*results_df.loc[41,'Slope'] + march_df1['NO2']*results_df.loc[41, 'Slope2'] + results_df.loc[41,'Intercept']
+march_df1['NO_Predicted'] = x
+x = march_df1[['NO_Predicted']]
+model_r_sq = LinearRegression().fit(x,y).score(x,y)
+
+# Function to evaluate how good models are at predicting
+
+
+#plt.figure(1)
+#x = march_ref_df.index
+#y = march_ref_df['NO_Scaled']
+#plt.scatter(x,y, label=truth)
+#y = march_df1['NO']*results_df.loc[8,'Slope'] + results_df.loc[8,'Intercept']
+#plt.scatter(x,y, label=predicted)
+#plt.show()
