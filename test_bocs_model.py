@@ -44,11 +44,11 @@ for file in glob.glob("../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocess
     march_df2 = march_df2.append(df2_1r, sort=False)
 
 # Match start and finish of datalog for march
-march_ref_df = march_ref_df.iloc[1:, ]
+march_ref_df = march_ref_df[1:]
 march_diff_len_1 = len(march_df1) - len(march_ref_df)
-march_df1 = march_df1.iloc[march_diff_len_1:, ]
+march_df1 = march_df1[march_diff_len_1:]
 march_diff_len_2 = len(march_df2) - len(march_ref_df)
-march_df2 = march_df2.iloc[march_diff_len_2:, ]
+march_df2 = march_df2[march_diff_len_2:]
 
 
 
@@ -87,25 +87,47 @@ for file in glob.glob("../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocess
     df2_1r = df2_1.resample("5Min").mean()
     may_df2 = may_df2.append(df2_1r, sort=False)
 
-# Match start and finish of datalog for may
-#may_ref_df = may_ref_df.iloc[:-1, ]
-#may_diff_len_1 = len(may_df1) - len(may_ref_df)
-#may_df1 = may_df1.iloc[:-may_diff_len_1, ]
-#may_diff_len_2 = len(may_df2) - len(may_ref_df)
-#may_df2 = may_df2.iloc[:-march_diff_len_2, ]
+## Match start and finish of datalog for may
+## Remove 11th and 12th of may from reference data as was a problem on those files of raw data (10*288=2880) 14th day- 3456
+may_ref_df1 = may_ref_df[:2880]
+may_ref_df2 = may_ref_df[3456:-1]
+may_ref_df = may_ref_df1.append(may_ref_df2, sort=False)
+may_diff_len_1 = len(may_df1) - len(may_ref_df)
+may_df1 = may_df1[:-may_diff_len_1]
+may_diff_len_2 = len(may_df2) - len(may_ref_df)
+may_df2 = may_df2[:-march_diff_len_2]
+
+
+## Append march and may dataframes
+mm_ref_df = march_ref_df.append(may_ref_df, sort=False)
+mm_df1 = march_df1.append(may_df1, sort=False)
+mm_df2 = march_df2.append(may_df2, sort=False)
 
 #================================================================================================================================================
-
+# Values of the results of different models made with April's data
 results_df = pd.read_csv("../bocs_aviva_trained_models_april_2019.csv", index_col=0)
 
-# Evaluating NO model with NO and NO2 from April
-y = march_ref_df['NO_Scaled']
-x = march_df1['NO']*results_df.loc[41,'Slope'] + march_df1['NO2']*results_df.loc[41, 'Slope2'] + results_df.loc[41,'Intercept']
-march_df1['NO_Predicted'] = x
-x = march_df1[['NO_Predicted']]
-model_r_sq = LinearRegression().fit(x,y).score(x,y)
-
 # Function to evaluate how good models are at predicting
+def evaluate_model(combo_num):
+    truth = results_df.loc[combo_num,'Truth']
+    y = mm_ref_df[truth]
+    predictor1 = results_df.loc[combo_num, 'Predictor']
+    predictor2 = results_df.loc[combo_num, 'Predictor2']
+    if predictor2 == '0':
+        x = mm_df1[predictor1]*results_df.loc[combo_num, 'Slope'] + results_df.loc[combo_num, 'Intercept']
+    else:
+        x = mm_df1[predictor1]*results_df.loc[combo_num, 'Slope'] + mm_df1[predictor2]*results_df.loc[combo_num, 'Slope2'] + results_df.loc[combo_num, 'Intercept']
+    mm_df1[truth + '_predicted'] = x
+    x = mm_df1[[truth + '_predicted']]
+    model_r_sq = LinearRegression().fit(x,y).score(x,y)
+    results_df.loc[combo_num, 'tested_r_sq'] = model_r_sq
+    
+
+# Evaluating NO model with NO and NO2 from April
+evaluate_model(41)
+
+for number in range(0,len(results_df)):
+    evaluate_model(number)
 
 
 #plt.figure(1)
