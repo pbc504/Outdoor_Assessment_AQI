@@ -100,7 +100,7 @@ def find_voc_median(dataframe, finalname, a, b, c, d, e, f, g, h):
 properties_df1 = pd.read_csv("../sensor_array_1_electronic_properties.csv", index_col=0)
 co2_properties_1 = pd.read_csv("../sensor_array_1_co2_properties.csv", index_col=0)
 
-for file in glob.glob("../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_1_2019-04*"):
+for file in glob.glob("../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_1_2019-05*"):
     df1= pd.read_csv(file, header=0, index_col=0, usecols=['timestamp', 'voc_1', 'voc_2', 'voc_3', 'voc_4', 'voc_5', 'voc_6', 'voc_7', 'voc_8',
     'no_1', 'no_2', 'no_3', 'no_4', 'no_5', 'no_6',
     'co_1', 'co_2', 'co_3', 'co_4', 'co_5', 'co_6',
@@ -142,7 +142,7 @@ for file in glob.glob("../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_1_2019-04*
 properties_df2 = pd.read_csv("../sensor_array_2_electronic_properties.csv", index_col=0)
 co2_properties_2 = pd.read_csv("../sensor_array_2_co2_properties.csv", index_col=0)
 
-for file in glob.glob("../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_2_2019-04*"):
+for file in glob.glob("../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_2_2019-05*"):
     df2= pd.read_csv(file, header=0, index_col=0, usecols=['timestamp', 'voc_1', 'voc_2', 'voc_3', 'voc_4', 'voc_5', 'voc_6', 'voc_7', 'voc_8',
     'no_1', 'no_2', 'no_3', 'no_4', 'no_5', 'no_6',
     'co_1', 'co_2', 'co_3', 'co_4', 'co_5', 'co_6',
@@ -176,3 +176,7 @@ for file in glob.glob("../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_2_2019-04*
     find_voc_median(df2, 'VOC', 'voc_1', 'voc_2', 'voc_3', 'voc_4', 'voc_5', 'voc_6', 'voc_7', 'voc_8')
     filename = os.path.basename(file)
     df2.to_csv("../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocessed_"+filename)
+
+
+
+# Problem in data file of 11/05/2019 and 12/05/2019. Not using those days
