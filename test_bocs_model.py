@@ -12,7 +12,7 @@ import itertools
 march_ref_df = pd.read_csv("../preprocessed_aviva_march_2019.csv", header=0, index_col=0,
 dtype={'TimeBeginning': 'object', 'NO_Scaled': np.float64, 'NO2_Scaled': np.float64, 'NOx_Scaled': np.float64, 'O3_Scaled': np.float64, 'WD_Scaled': np.float64, 'TEMP_Scaled': np.float64, 'HUM_Scaled': np.float64, 'WINDMS_Scaled': np.float64})
 
-# Reads selected columns of each preprocessed file in march, resamples them to 5 minutes and appends them into a dataframe containing all may data.
+# Reads selected columns of each preprocessed file in march, resamples them to 5 minutes and appends them into a dataframe containing all march data.
 # Same thing for both sensor arrays
 march_df1 = pd.DataFrame()
 
