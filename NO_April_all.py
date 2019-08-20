@@ -108,14 +108,13 @@ def combos_results(dataframe,combo, truth, results_df):
         coefficient_6 = model.coef_.item(5)
         predictor_7 = combo[6]
         coefficient_7 = model.coef_.item(6)
-
     return results_df.append({'Truth': truth, 'Sensor_Array': dataframe.name,
     'Predictor_1': predictor_1, 'Predictor_2': predictor_2, 'Predictor_3': predictor_3, 'Predictor_4': predictor_4, 'Predictor_5': predictor_5, 'Predictor_6': predictor_6, 'Predictor_7': predictor_7,
     'Intercept': model.intercept_, 'Slope_1': coefficient_1, 'Slope_2': coefficient_2, 'Slope_3': coefficient_3, 'Slope_4': coefficient_4, 'Slope_5': coefficient_5, 'Slope_6': coefficient_6, 'Slope_7': coefficient_7, 'r_sq': r_sq}, ignore_index=True)
 
 
 
-## Tries different combinations of predictors. Saves results to a dataframe
+# Computes all combinations of predictors. Saves results to a dataframe
 df1.name = 1
 df2.name = 2
 for dataframe in (df1,df2):
