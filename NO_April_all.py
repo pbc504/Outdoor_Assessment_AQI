@@ -43,7 +43,7 @@ for file in glob.glob("../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocess
 #===================================================================================================================================
 
 # Function to append results of linear regression for different combinations
-results = pd.DataFrame(columns=['Truth', 'Sensor_Array', 'Predictor_1', 'Predictor_2', 'Intercept', 'Slope_1', 'Slope_2', 'r_sq'])
+results = pd.DataFrame(columns=['Truth', 'Sensor_Array', 'Predictor_1', 'Predictor_2', 'Predictor_3', 'Predictor_4', 'Predictor_5', 'Predictor_6', 'Predictor_7', 'Intercept', 'Slope_1', 'Slope_2', 'Slope_3', 'Slope_4', 'Slope_5', 'Slope_6', 'Slope_7', 'r_sq'])
 
 def combos_results(dataframe,combo, truth, results_df, sensor_array):
     predictors = dataframe[list(combo)]
@@ -51,37 +51,79 @@ def combos_results(dataframe,combo, truth, results_df, sensor_array):
     y = ref_df[truth].values
     model = LinearRegression().fit(x,y)
     r_sq = model.score(x,y)
-    coefficient = model.coef_.item(0)
-    predictor = combo[0]
+    coefficient_1 = model.coef_.item(0)
+    predictor_1 = combo[0]
     if len(combo) == 1:
-        predictor_2 = 0
-        coefficient_2 = 0
+        predictor_2 = coefficient_2 = predictor_3 = coefficient_3 = predictor_4 = coefficient_4 = predictor_5 = coefficient_5 = predictor_6 = coefficient_6 = predictor_7 = coefficient_7 = 0
     elif len(combo) == 2:
         predictor_2 = combo[1]
         coefficient_2 = model.coef_.item(1)
-    return results_df.append({'Truth': truth, 'Sensor_Array': sensor_array, 'Predictor_1': predictor, 'Predictor_2': predictor_2, 'Intercept': model.intercept_, 'Slope_1': coefficient, 'Slope_2': coefficient_2, 'r_sq': r_sq}, ignore_index=True)
+        predictor_3 = coefficient_3 = predictor_4 = coefficient_4 = predictor_5 = coefficient_5 = predictor_6 = coefficient_6 = predictor_7 = coefficient_7 = 0
+    elif len(combo) == 3:
+        predictor_2 = combo[1]
+        coefficient_2 = model.coef_.item(1)
+        predictor_3 = combo[2]
+        coefficient_3 = model.coef_.item(2)
+        predictor_4 = coefficient_4 = predictor_5 = coefficient_5 = predictor_6 = coefficient_6 = predictor_7 = coefficient_7 = 0
+    elif len(combo) == 4:
+        predictor_2 = combo[1]
+        coefficient_2 = model.coef_.item(1)
+        predictor_3 = combo[2]
+        coefficient_3 = model.coef_.item(2)
+        predictor_4 = combo[3]
+        coefficient_4 = model.coef_.item(3)
+        predictor_5 = coefficient_5 = predictor_6 = coefficient_6 = predictor_7 = coefficient_7 = 0
+    elif len(combo) == 5:
+        predictor_2 = combo[1]
+        coefficient_2 = model.coef_.item(1)
+        predictor_3 = combo[2]
+        coefficient_3 = model.coef_.item(2)
+        predictor_4 = combo[3]
+        coefficient_4 = model.coef_.item(3)
+        predictor_5 = combo[4]
+        coefficient_5 = model.coef_.item(4)
+        predictor_6 = coefficient_6 = predictor_7 = coefficient_7 = 0
+    elif len(combo) == 6:
+        predictor_2 = combo[1]
+        coefficient_2 = model.coef_.item(1)
+        predictor_3 = combo[2]
+        coefficient_3 = model.coef_.item(2)
+        predictor_4 = combo[3]
+        coefficient_4 = model.coef_.item(3)
+        predictor_5 = combo[4]
+        coefficient_5 = model.coef_.item(4)
+        predictor_6 = combo[5]
+        coefficient_6 = model.coef_.item(5)
+        predictor_7 = coefficient_7 = 0
+    elif len(combo) == 7:
+        predictor_2 = combo[1]
+        coefficient_2 = model.coef_.item(1)
+        predictor_3 = combo[2]
+        coefficient_3 = model.coef_.item(2)
+        predictor_4 = combo[3]
+        coefficient_4 = model.coef_.item(3)
+        predictor_5 = combo[4]
+        coefficient_5 = model.coef_.item(4)
+        predictor_6 = combo[5]
+        coefficient_6 = model.coef_.item(5)
+        predictor_7 = combo[6]
+        coefficient_7 = model.coef_.item(6)
+
+    return results_df.append({'Truth': truth, 'Sensor_Array': sensor_array,
+    'Predictor_1': predictor_1, 'Predictor_2': predictor_2, 'Predictor_3': predictor_3, 'Predictor_4': predictor_4, 'Predictor_5': predictor_5, 'Predictor_6': predictor_6, 'Predictor_7': predictor_7,
+    'Intercept': model.intercept_, 'Slope_1': coefficient_1, 'Slope_2': coefficient_2, 'Slope_3': coefficient_3, 'Slope_4': coefficient_4, 'Slope_5': coefficient_5, 'Slope_6': coefficient_6, 'Slope_7': coefficient_7, 'r_sq': r_sq}, ignore_index=True)
 
 
-## Tries different combinations of predictors to predict NO. Saves results to a dataframe
-for combo in itertools.combinations(df1.columns, 1):
-    results = combos_results(df1, combo, 'NO_Scaled', results, 1)
-    results = combos_results(df1, combo, 'NO2_Scaled', results, 1)
-    results = combos_results(df1, combo, 'NOx_Scaled', results, 1)
-    results = combos_results(df1, combo, 'O3_Scaled', results, 1)
 
-
-for combo in itertools.combinations(df1.columns, 2):
-    results = combos_results(df1, combo, 'NO_Scaled', results, 1)
-    results = combos_results(df1, combo, 'NO2_Scaled', results, 1)
-    results = combos_results(df1, combo, 'NOx_Scaled', results, 1)
-    results = combos_results(df1, combo, 'O3_Scaled', results, 1)
-
-
-for combo in itertools.combinations(df2.columns, 1):
-    results = combos_results(df2, combo, 'NO_Scaled', results, 2)
-    results = combos_results(df2, combo, 'NO2_Scaled', results, 2)
-    results = combos_results(df2, combo, 'NOx_Scaled', results, 2)
-    results = combos_results(df2, combo, 'O3_Scaled', results, 2)
-
+## Tries different combinations of predictors. Saves results to a dataframe
+df1.name = 1
+df2.name = 2
+for dataframe in (df1,df2):
+    for number in range(1,8):
+        for combo in itertools.combinations(dataframe.columns, number):
+            results = combos_results(dataframe, combo, 'NO_Scaled', results, dataframe.name)
+            results = combos_results(dataframe, combo, 'NO2_Scaled', results, dataframe.name)
+            results = combos_results(dataframe, combo, 'NOx_Scaled', results, dataframe.name)
+            results = combos_results(dataframe, combo, 'O3_Scaled', results, dataframe.name)
 
 results.to_csv('../bocs_aviva_trained_models_april_2019.csv')
