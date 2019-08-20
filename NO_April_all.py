@@ -45,7 +45,7 @@ for file in glob.glob("../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocess
 # Function to append results of linear regression for different combinations
 results = pd.DataFrame(columns=['Truth', 'Sensor_Array', 'Predictor_1', 'Predictor_2', 'Predictor_3', 'Predictor_4', 'Predictor_5', 'Predictor_6', 'Predictor_7', 'Intercept', 'Slope_1', 'Slope_2', 'Slope_3', 'Slope_4', 'Slope_5', 'Slope_6', 'Slope_7', 'r_sq'])
 
-def combos_results(dataframe,combo, truth, results_df, sensor_array):
+def combos_results(dataframe,combo, truth, results_df):
     predictors = dataframe[list(combo)]
     x = predictors.values
     y = ref_df[truth].values
@@ -109,7 +109,7 @@ def combos_results(dataframe,combo, truth, results_df, sensor_array):
         predictor_7 = combo[6]
         coefficient_7 = model.coef_.item(6)
 
-    return results_df.append({'Truth': truth, 'Sensor_Array': sensor_array,
+    return results_df.append({'Truth': truth, 'Sensor_Array': dataframe.name,
     'Predictor_1': predictor_1, 'Predictor_2': predictor_2, 'Predictor_3': predictor_3, 'Predictor_4': predictor_4, 'Predictor_5': predictor_5, 'Predictor_6': predictor_6, 'Predictor_7': predictor_7,
     'Intercept': model.intercept_, 'Slope_1': coefficient_1, 'Slope_2': coefficient_2, 'Slope_3': coefficient_3, 'Slope_4': coefficient_4, 'Slope_5': coefficient_5, 'Slope_6': coefficient_6, 'Slope_7': coefficient_7, 'r_sq': r_sq}, ignore_index=True)
 
@@ -121,9 +121,9 @@ df2.name = 2
 for dataframe in (df1,df2):
     for number in range(1,8):
         for combo in itertools.combinations(dataframe.columns, number):
-            results = combos_results(dataframe, combo, 'NO_Scaled', results, dataframe.name)
-            results = combos_results(dataframe, combo, 'NO2_Scaled', results, dataframe.name)
-            results = combos_results(dataframe, combo, 'NOx_Scaled', results, dataframe.name)
-            results = combos_results(dataframe, combo, 'O3_Scaled', results, dataframe.name)
+            results = combos_results(dataframe, combo, 'NO_Scaled', results)
+            results = combos_results(dataframe, combo, 'NO2_Scaled', results)
+            results = combos_results(dataframe, combo, 'NOx_Scaled', results)
+            results = combos_results(dataframe, combo, 'O3_Scaled', results)
 
 results.to_csv('../bocs_aviva_trained_models_april_2019.csv')
