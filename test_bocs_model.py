@@ -140,10 +140,10 @@ def evaluate_model(test_dataframe,combo_num, r_sq_variable_name):
 
 # Evaluates the models on the data of march and may, for both sensor arrays.
 for number in range(0,len(results_df)):
-    evaluate_model(mm_df1, number, 'df1_tested_r_sq')
-    evaluate_model(mm_df2, number, 'df2_tested_r_sq')
+    evaluate_model(mm_df1, number, 'df1_evaluated_r_sq')
+    evaluate_model(mm_df2, number, 'df2_evaluated_r_sq')
 
-results_df.to_csv('../bocs_aviva_tested_models_april_2019.csv')
+results_df.to_csv('../bocs_aviva_evaluated_models_april_2019.csv')
 
 
 #plt.figure(1)
