@@ -95,7 +95,7 @@ may_ref_df = may_ref_df1.append(may_ref_df2, sort=False)
 may_diff_len_1 = len(may_df1) - len(may_ref_df)
 may_df1 = may_df1[:-may_diff_len_1]
 may_diff_len_2 = len(may_df2) - len(may_ref_df)
-may_df2 = may_df2[:-march_diff_len_2]
+may_df2 = may_df2[:-may_diff_len_2]
 
 
 ## Append march and may dataframes
@@ -108,26 +108,40 @@ mm_df2 = march_df2.append(may_df2, sort=False)
 results_df = pd.read_csv("../bocs_aviva_trained_models_april_2019.csv", index_col=0)
 
 # Function to evaluate how good models are at predicting
-def evaluate_model(combo_num):
+def evaluate_model(test_dataframe,combo_num, r_sq_variable_name):
     truth = results_df.loc[combo_num,'Truth']
     y = mm_ref_df[truth]
     predictor_1 = results_df.loc[combo_num, 'Predictor_1']
     predictor_2 = results_df.loc[combo_num, 'Predictor_2']
+    predictor_3 = results_df.loc[combo_num, 'Predictor_3']
+    predictor_4 = results_df.loc[combo_num, 'Predictor_4']
+    predictor_5 = results_df.loc[combo_num, 'Predictor_5']
+    predictor_6 = results_df.loc[combo_num, 'Predictor_6']
+    predictor_7 = results_df.loc[combo_num, 'Predictor_7']
     if predictor_2 == '0':
-        x = mm_df1[predictor_1]*results_df.loc[combo_num, 'Slope_1'] + results_df.loc[combo_num, 'Intercept']
+        x = test_dataframe[predictor_1]*results_df.loc[combo_num, 'Slope_1'] + results_df.loc[combo_num, 'Intercept']
+    elif predictor_3 == '0':
+        x = test_dataframe[predictor_1]*results_df.loc[combo_num, 'Slope_1'] + test_dataframe[predictor_2]*results_df.loc[combo_num, 'Slope_2'] + results_df.loc[combo_num, 'Intercept']
+    elif predictor_4 == '0':
+        x = test_dataframe[predictor_1]*results_df.loc[combo_num, 'Slope_1'] + test_dataframe[predictor_2]*results_df.loc[combo_num, 'Slope_2'] + test_dataframe[predictor_3]*results_df.loc[combo_num, 'Slope_3'] + results_df.loc[combo_num, 'Intercept']
+    elif predictor_5 == '0':
+        x = test_dataframe[predictor_1]*results_df.loc[combo_num, 'Slope_1'] + test_dataframe[predictor_2]*results_df.loc[combo_num, 'Slope_2'] + test_dataframe[predictor_3]*results_df.loc[combo_num, 'Slope_3'] + test_dataframe[predictor_4]*results_df.loc[combo_num, 'Slope_4'] + results_df.loc[combo_num, 'Intercept']
+    elif predictor_6 == '0':
+        x = test_dataframe[predictor_1]*results_df.loc[combo_num, 'Slope_1'] + test_dataframe[predictor_2]*results_df.loc[combo_num, 'Slope_2'] + test_dataframe[predictor_3]*results_df.loc[combo_num, 'Slope_3'] + test_dataframe[predictor_4]*results_df.loc[combo_num, 'Slope_4'] + test_dataframe[predictor_5]*results_df.loc[combo_num, 'Slope_5'] + results_df.loc[combo_num, 'Intercept']
+    elif predictor_7 == '0':
+        x = test_dataframe[predictor_1]*results_df.loc[combo_num, 'Slope_1'] + test_dataframe[predictor_2]*results_df.loc[combo_num, 'Slope_2'] + test_dataframe[predictor_3]*results_df.loc[combo_num, 'Slope_3'] + test_dataframe[predictor_4]*results_df.loc[combo_num, 'Slope_4'] + test_dataframe[predictor_5]*results_df.loc[combo_num, 'Slope_5'] + test_dataframe[predictor_6]*results_df.loc[combo_num, 'Slope_6'] + results_df.loc[combo_num, 'Intercept']
     else:
-        x = mm_df1[predictor_1]*results_df.loc[combo_num, 'Slope_1'] + mm_df1[predictor_2]*results_df.loc[combo_num, 'Slope_2'] + results_df.loc[combo_num, 'Intercept']
-    mm_df1[truth + '_predicted'] = x
-    x = mm_df1[[truth + '_predicted']]
+        x = test_dataframe[predictor_1]*results_df.loc[combo_num, 'Slope_1'] + test_dataframe[predictor_2]*results_df.loc[combo_num, 'Slope_2'] + test_dataframe[predictor_3]*results_df.loc[combo_num, 'Slope_3'] + test_dataframe[predictor_4]*results_df.loc[combo_num, 'Slope_4'] + test_dataframe[predictor_5]*results_df.loc[combo_num, 'Slope_5'] + test_dataframe[predictor_6]*results_df.loc[combo_num, 'Slope_6'] + test_dataframe[predictor_7]*results_df.loc[combo_num, 'Slope_7'] + results_df.loc[combo_num, 'Intercept']
+    test_dataframe[truth + '_predicted'] = x
+    x = test_dataframe[[truth + '_predicted']]
     model_r_sq = LinearRegression().fit(x,y).score(x,y)
-    results_df.loc[combo_num, 'tested_r_sq'] = model_r_sq
+    results_df.loc[combo_num, r_sq_variable_name] = model_r_sq
 
 
-# Evaluating NO model with NO and NO2 from April
-evaluate_model(41)
-
+# Evaluates the models on the data of march and may, for both sensor arrays.
 for number in range(0,len(results_df)):
-    evaluate_model(number)
+    evaluate_model(mm_df1, number, 'df1_tested_r_sq')
+    evaluate_model(mm_df2, number, 'df2_tested_r_sq')
 
 results_df.to_csv('../bocs_aviva_tested_models_april_2019.csv')
 
