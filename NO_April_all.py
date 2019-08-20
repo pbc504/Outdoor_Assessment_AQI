@@ -42,33 +42,8 @@ for file in glob.glob("../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocess
 
 #===================================================================================================================================
 
-# Function to calculate linear Regression
-def calculate_linear_regression(predictors, truth):
-    x = predictors.values
-    y = truth.values
-    model = LinearRegression().fit(x,y)
-    r_sq = model.score(x,y)
-    print()
-    print("R^2 = ",r_sq)
-    print("Intercept: ", model.intercept_)
-    print("Slope: ", model.coef_)
-
-
-# Performs LinearRegression for reference NO vs no from sensor array 1
-calculate_linear_regression(df1[['NO']], ref_df['NO_Scaled'])
-
-# Performs Multiple regression for reference NO vs no, relative humidity and temperature
-calculate_linear_regression(df1[['NO', 'humidity_in_percentage', 'temperature_in_celsius']], ref_df['NO_Scaled'])
-
-# Performs Multiple regression for reference NO vs the no value from both sensor arrays, relative_humidity and temperature
-joint_NO = pd.concat([df1[['NO', 'humidity_in_percentage', 'temperature_in_celsius']], df2['NO']], axis=1, sort=False)
-calculate_linear_regression(joint_NO, ref_df['NO_Scaled'])
-print()
-
-
-
 # Function to append results of linear regression for different combinations
-results = pd.DataFrame(columns=['Truth', 'Sensor_Array', 'Predictor', 'Predictor2', 'Intercept', 'Slope', 'Slope2', 'r_sq'])
+results = pd.DataFrame(columns=['Truth', 'Sensor_Array', 'Predictor_1', 'Predictor_2', 'Intercept', 'Slope_1', 'Slope_2', 'r_sq'])
 
 def combos_results(dataframe,combo, truth, results_df, sensor_array):
     predictors = dataframe[list(combo)]
@@ -79,12 +54,12 @@ def combos_results(dataframe,combo, truth, results_df, sensor_array):
     coefficient = model.coef_.item(0)
     predictor = combo[0]
     if len(combo) == 1:
-        predictor2 = 0
-        coefficient2 = 0
+        predictor_2 = 0
+        coefficient_2 = 0
     elif len(combo) == 2:
-        predictor2 = combo[1]
-        coefficient2 = model.coef_.item(1)
-    return results_df.append({'Truth': truth, 'Sensor_Array': sensor_array, 'Predictor': predictor, 'Predictor2': predictor2, 'Intercept': model.intercept_, 'Slope': coefficient, 'Slope2': coefficient2, 'r_sq': r_sq}, ignore_index=True)
+        predictor_2 = combo[1]
+        coefficient_2 = model.coef_.item(1)
+    return results_df.append({'Truth': truth, 'Sensor_Array': sensor_array, 'Predictor_1': predictor, 'Predictor_2': predictor_2, 'Intercept': model.intercept_, 'Slope_1': coefficient, 'Slope_2': coefficient_2, 'r_sq': r_sq}, ignore_index=True)
 
 
 ## Tries different combinations of predictors to predict NO. Saves results to a dataframe
@@ -102,7 +77,7 @@ for combo in itertools.combinations(df1.columns, 2):
     results = combos_results(df1, combo, 'O3_Scaled', results, 1)
 
 
-for combo in itertools.combinations(df1.columns, 1):
+for combo in itertools.combinations(df2.columns, 1):
     results = combos_results(df2, combo, 'NO_Scaled', results, 2)
     results = combos_results(df2, combo, 'NO2_Scaled', results, 2)
     results = combos_results(df2, combo, 'NOx_Scaled', results, 2)

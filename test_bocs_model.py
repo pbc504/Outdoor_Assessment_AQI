@@ -111,23 +111,25 @@ results_df = pd.read_csv("../bocs_aviva_trained_models_april_2019.csv", index_co
 def evaluate_model(combo_num):
     truth = results_df.loc[combo_num,'Truth']
     y = mm_ref_df[truth]
-    predictor1 = results_df.loc[combo_num, 'Predictor']
-    predictor2 = results_df.loc[combo_num, 'Predictor2']
-    if predictor2 == '0':
-        x = mm_df1[predictor1]*results_df.loc[combo_num, 'Slope'] + results_df.loc[combo_num, 'Intercept']
+    predictor_1 = results_df.loc[combo_num, 'Predictor_1']
+    predictor_2 = results_df.loc[combo_num, 'Predictor_2']
+    if predictor_2 == '0':
+        x = mm_df1[predictor_1]*results_df.loc[combo_num, 'Slope_1'] + results_df.loc[combo_num, 'Intercept']
     else:
-        x = mm_df1[predictor1]*results_df.loc[combo_num, 'Slope'] + mm_df1[predictor2]*results_df.loc[combo_num, 'Slope2'] + results_df.loc[combo_num, 'Intercept']
+        x = mm_df1[predictor_1]*results_df.loc[combo_num, 'Slope_1'] + mm_df1[predictor_2]*results_df.loc[combo_num, 'Slope_2'] + results_df.loc[combo_num, 'Intercept']
     mm_df1[truth + '_predicted'] = x
     x = mm_df1[[truth + '_predicted']]
     model_r_sq = LinearRegression().fit(x,y).score(x,y)
     results_df.loc[combo_num, 'tested_r_sq'] = model_r_sq
-    
+
 
 # Evaluating NO model with NO and NO2 from April
 evaluate_model(41)
 
 for number in range(0,len(results_df)):
     evaluate_model(number)
+
+results_df.to_csv('../bocs_aviva_tested_models_april_2019.csv')
 
 
 #plt.figure(1)
