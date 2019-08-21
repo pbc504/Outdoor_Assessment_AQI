@@ -87,6 +87,7 @@ for file in glob.glob("../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocess
     df2_1r = df2_1.resample("5Min").mean()
     may_df2 = may_df2.append(df2_1r, sort=False)
 
+
 ## Match start and finish of datalog for may
 ## Remove 11th and 12th of may from reference data as was a problem on those files of raw data (10*288=2880) 14th day- 3456
 may_ref_df1 = may_ref_df[:2880]
