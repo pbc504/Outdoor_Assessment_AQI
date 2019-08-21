@@ -42,105 +42,32 @@ for file in glob.glob("../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocess
 
 #====================================================================================================================
 """
-##To train on March data
-# Reads reference data for march
-march_ref_df = pd.read_csv("../preprocessed_aviva_march_2019.csv", header=0, index_col=0,
-dtype={'TimeBeginning': 'object', 'NO_Scaled': np.float64, 'NO2_Scaled': np.float64, 'NOx_Scaled': np.float64, 'O3_Scaled': np.float64, 'WD_Scaled': np.float64, 'TEMP_Scaled': np.float64, 'HUM_Scaled': np.float64, 'WINDMS_Scaled': np.float64})
+### To train on March data
+## Change part of filename from april to march in line 9 and 156
+## Change part of filename from 04 to 03 in line 17 and 31
 
-# Reads selected columns of each preprocessed file in march, resamples them to 5 minutes and appends them into a dataframe containing all march data.
-# Same thing for both sensor arrays
-march_df1 = pd.DataFrame()
-
-for file in glob.glob("../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocessed_SENSOR_ARRAY_1_2019-03*"):
-    df1_1 = pd.read_csv(file, header=0, index_col=0,
-    usecols=['timestamp', 'VOC', 'NO', 'CO', 'Ox', 'NO2',
-#    'co2_1_active', 'co2_1_reference', 'co2_2_active', 'co2_2_reference', 'co2_3_active', 'co2_3_reference',
-    'humidity_in_percentage', 'temperature_in_celsius'],
-    dtype={'timestamp': np.int64, 'VOC': np.float64, 'NO': np.float64, 'CO': np.float64, 'Ox': np.float64, 'NO2': np.float64,
-#    'co2_1': np.float64, 'co2_2': np.float64, 'co2_3': np.float64, 'co2_4': np.float64, 'co2_5': np.float64, 'co2_6': np.float64,
-    'humidity_in_percentage': np.float64, 'temperature_in_celsius': np.float64})
-    df1_1.index = pd.to_datetime(df1_1.index, unit='s')
-    df1_1r = df1_1.resample("5Min").mean()
-    march_df1 = march_df1.append(df1_1r, sort=False)
+# Match start and finish of datalog for March
+ref_df = ref_df[1:]
+diff_len_1 = len(df1) - len(ref_df)
+df1 = df1[diff_len_1:]
+diff_len_2 = len(df2) - len(ref_df)
+df2 = df2[diff_len_2:]
 
 
-march_df2 = pd.DataFrame()
+### To train on May data
+## Change part of filename from april to may in line 9 and 156
+## Change part of filename from 04 to 05 in line 17 and 31
 
-for file in glob.glob("../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocessed_SENSOR_ARRAY_2_2019-03*"):
-    df2_1 = pd.read_csv(file, header=0, index_col=0,
-    usecols=['timestamp', 'VOC', 'NO', 'CO', 'Ox', 'NO2',
-#    'co2_1_active', 'co2_1_reference', 'co2_2_active', 'co2_2_reference', 'co2_3_active', 'co2_3_reference',
-    'humidity_in_percentage', 'temperature_in_celsius'],
-    dtype={'timestamp': np.int64, 'VOC': np.float64, 'NO': np.float64, 'CO': np.float64, 'Ox': np.float64, 'NO2': np.float64,
-#    'co2_1': np.float64, 'co2_2': np.float64, 'co2_3': np.float64, 'co2_4': np.float64, 'co2_5': np.float64, 'co2_6': np.float64,
-    'humidity_in_percentage': np.float64, 'temperature_in_celsius': np.float64})
-    df2_1.index = pd.to_datetime(df2_1.index, unit='s')
-    df2_1r = df2_1.resample("5Min").mean()
-    march_df2 = march_df2.append(df2_1r, sort=False)
-
-# Match start and finish of datalog for march
-march_ref_df = march_ref_df[1:]
-march_diff_len_1 = len(march_df1) - len(march_ref_df)
-march_df1 = march_df1[march_diff_len_1:]
-march_diff_len_2 = len(march_df2) - len(march_ref_df)
-march_df2 = march_df2[march_diff_len_2:]
-
-ref_df = march_ref_df
-df1 = march_df1
-df2 = march_df2
-
-
-## To train on May data
-# Reads reference data for may
-may_ref_df = pd.read_csv("../preprocessed_aviva_may_2019.csv", header=0, index_col=0,
-dtype={'TimeBeginning': 'object', 'NO_Scaled': np.float64, 'NO2_Scaled': np.float64, 'NOx_Scaled': np.float64, 'O3_Scaled': np.float64, 'WD_Scaled': np.float64, 'TEMP_Scaled': np.float64, 'HUM_Scaled': np.float64, 'WINDMS_Scaled': np.float64})
-
-# Reads selected columns of each preprocessed file in may, resamples them to 5 minutes and appends them into a dataframe containing all may data.
-# Same thing for both sensor arrays
-may_df1 = pd.DataFrame()
-
-for file in glob.glob("../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocessed_SENSOR_ARRAY_1_2019-05*"):
-    df1_1 = pd.read_csv(file, header=0, index_col=0,
-    usecols=['timestamp', 'VOC', 'NO', 'CO', 'Ox', 'NO2',
-#    'co2_1_active', 'co2_1_reference', 'co2_2_active', 'co2_2_reference', 'co2_3_active', 'co2_3_reference',
-    'humidity_in_percentage', 'temperature_in_celsius'],
-    dtype={'timestamp': np.int64, 'VOC': np.float64, 'NO': np.float64, 'CO': np.float64, 'Ox': np.float64, 'NO2': np.float64,
-#    'co2_1': np.float64, 'co2_2': np.float64, 'co2_3': np.float64, 'co2_4': np.float64, 'co2_5': np.float64, 'co2_6': np.float64,
-    'humidity_in_percentage': np.float64, 'temperature_in_celsius': np.float64})
-    df1_1.index = pd.to_datetime(df1_1.index, unit='s')
-    df1_1r = df1_1.resample("5Min").mean()
-    may_df1 = may_df1.append(df1_1r, sort=False)
-
-
-may_df2 = pd.DataFrame()
-
-for file in glob.glob("../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocessed_SENSOR_ARRAY_2_2019-05*"):
-    df2_1 = pd.read_csv(file, header=0, index_col=0,
-    usecols=['timestamp', 'VOC', 'NO', 'CO', 'Ox', 'NO2',
-#    'co2_1_active', 'co2_1_reference', 'co2_2_active', 'co2_2_reference', 'co2_3_active', 'co2_3_reference',
-    'humidity_in_percentage', 'temperature_in_celsius'],
-    dtype={'timestamp': np.int64, 'VOC': np.float64, 'NO': np.float64, 'CO': np.float64, 'Ox': np.float64, 'NO2': np.float64,
-#    'co2_1': np.float64, 'co2_2': np.float64, 'co2_3': np.float64, 'co2_4': np.float64, 'co2_5': np.float64, 'co2_6': np.float64,
-    'humidity_in_percentage': np.float64, 'temperature_in_celsius': np.float64})
-    df2_1.index = pd.to_datetime(df2_1.index, unit='s')
-    df2_1r = df2_1.resample("5Min").mean()
-    may_df2 = may_df2.append(df2_1r, sort=False)
-
-## Match start and finish of datalog for may
-## Remove 11th and 12th of may from reference data as was a problem on those files of raw data (10*288=2880) 14th day- 3456
-may_ref_df1 = may_ref_df[:2880]
-may_ref_df2 = may_ref_df[3456:-1]
-may_ref_df = may_ref_df1.append(may_ref_df2, sort=False)
-may_diff_len_1 = len(may_df1) - len(may_ref_df)
-may_df1 = may_df1[:-may_diff_len_1]
-may_diff_len_2 = len(may_df2) - len(may_ref_df)
-may_df2 = may_df2[:-may_diff_len_2]
-
-ref_df = may_ref_df
-df1 = may_df1
-df2 = may_df2
+# Match start and finish of datalog for May
+# Remove 11th and 12th of may from reference data as was a problem on those files of raw data (10*288=2880) 14th day- 3456
+ref_df1 = ref_df[:2880]
+ref_df2 = ref_df[3456:-1]
+ref_df = ref_df1.append(ref_df2, sort=False)
+diff_len_1 = len(df1) - len(ref_df)
+df1 = df1[:-diff_len_1]
+diff_len_2 = len(df2) - len(ref_df)
+df2 = df2[:-diff_len_2]
 """
-
 #===================================================================================================================================
 
 # Function to append results of linear regression for different combinations
