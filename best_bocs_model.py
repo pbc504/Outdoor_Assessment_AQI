@@ -8,11 +8,11 @@ import itertools
 
 # Read files with evaluated models
 april_models = pd.read_csv("../bocs_aviva_evaluated_models_april_2019.csv", header=0, index_col=0)
-april_models.name = 'april_models'
+april_models.name = 'april_model'
 march_models = pd.read_csv("../bocs_aviva_evaluated_models_march_2019.csv", header=0, index_col=0)
-march_models.name = 'march_models'
+march_models.name = 'march_model'
 may_models = pd.read_csv("../bocs_aviva_evaluated_models_may_2019.csv", header=0, index_col=0)
-may_models.name = 'may_models'
+may_models.name = 'may_model'
 
 # Function to print models with evaluated r_sq over 0.9
 def best_models(dataframe, filename):
@@ -32,31 +32,24 @@ best_may = pd.read_csv("../bocs_aviva_best_models_may_2019.csv", index_col=0)
 ## Read test files
 march_april_ref = pd.read_csv('../joint_files/joint_aviva_march-april_ref_2019.csv', index_col=0)
 march_april_df1 = pd.read_csv('../joint_files/joint_aviva_march-april_df1_2019.csv', index_col=0)
+march_april_df1.name = 'March and April sensor array 1'
 march_april_df2 = pd.read_csv('../joint_files/joint_aviva_march-april_df2_2019.csv', index_col=0)
+march_april_df2.name = 'March and April sensor array 2'
 
 march_may_ref = pd.read_csv('../joint_files/joint_aviva_march-may_ref_2019.csv', index_col=0)
 march_may_df1 = pd.read_csv('../joint_files/joint_aviva_march-may_df1_2019.csv', index_col=0)
+march_may_df1.name = 'March and May sensor array 1'
 march_may_df2 = pd.read_csv('../joint_files/joint_aviva_march-may_df2_2019.csv', index_col=0)
+march_may_df2.name = 'March and May sensor array 2'
+
 
 april_may_ref = pd.read_csv('../joint_files/joint_aviva_april-may_ref_2019.csv', index_col=0)
 april_may_df1 = pd.read_csv('../joint_files/joint_aviva_april-may_df1_2019.csv', index_col=0)
+april_may_df1.name = 'April and May sensor array 1'
 april_may_df2 = pd.read_csv('../joint_files/joint_aviva_april-may_df2_2019.csv', index_col=0)
+april_may_df2.name = 'April and May sensor array 2'
 
 
-
-# Plot model trained on may to predict O3_Scaled with humidity, temperature,CO, Ox and NO2
-#fig = plt.figure(1)
-#x = ma_ref_df.index
-#y_ref = ma_ref_df['O3_Scaled']
-#y_pred = ma_df1[may_df.loc[419, 'Predictor_1']]*may_df.loc[419, 'Slope_1'] + ma_df1[may_df.loc[419, 'Predictor_2']]*may_df.loc[419, 'Slope_2'] + ma_df1[may_df.loc[419, 'Predictor_3']]*may_df.loc[419, 'Slope_3'] + ma_df1[may_df.loc[419, 'Predictor_4']]*may_df.loc[419, 'Slope_4'] + ma_df1[may_df.loc[419, 'Predictor_5']]*may_df.loc[419, 'Slope_5'] + may_df.loc[419, 'Intercept']
-#plt.scatter(x, y_ref, label='Reference Data')
-#plt.scatter(x, y_pred, label='Predicted Data with may model')
-#plt.xlabel('Time')
-#plt.ylabel('O3 concentration /ppb')
-#plt.title('R^2 = 0.945665')
-#plt.legend()
-#fig.savefig('../plot_may_df[419].png')
-#plt.show()
 
 # Function to plot the overlap between reference/truth data and data predicted with model
 def plot_model(figure, ref_dataframe, model_dataframe, test_dataframe, model):
@@ -87,13 +80,33 @@ def plot_model(figure, ref_dataframe, model_dataframe, test_dataframe, model):
     plt.scatter(x, y_ref, label='Reference Data')
     plt.scatter(x, y_pred, label='Predicted Data')
     plt.xlabel('Time')
-    plt.ylabel(model_dataframe.loc[model, 'Truth'] + ' concentration/ppb')
+    if (test_dataframe.name == march_april_df1.name) or (test_dataframe.name == march_april_df2.name):
+        plt.xticks([116, 2132, 4148, 6164, 8180, 10196, 12212, 14228], ['7/03/19', '14/03/19', '21/03/19', '28/03/19', '04/04/19', '11/04/19', '18/04/19', '25/04/19'], rotation=30)
+    elif (test_dataframe.name == march_may_df1.name) or (test_dataframe.name == march_may_df2.name):
+        plt.xticks([116, 2132, 4148, 6164, 8180, 10196, 12212, 14228], ['7/03/19', '14/03/19', '21/03/19', '28/03/19', '04/05/19', '13/05/19', '20/05/19', '27/05/19'], rotation=30)
+    elif (test_dataframe.name == april_may_df1.name) or (test_dataframe.name == april_may_df2.name):
+        plt.xticks([0, 2016, 4032, 6048, 8064, 10080, 12096, 14112, 16128], ['1/04/19', '8/04/19', '15/04/19', '22/04/19', '29/04/19', '6/05/19', '15/05/19', '22/05/19', '29/05/19'], rotation=30)
+    plt.ylabel(model_dataframe.loc[model, 'Truth'] + ' concentration /ppb')
     test_dataframe['predicting'] = y_pred
     y_pred = test_dataframe[['predicting']]
     model_r_sq = LinearRegression().fit(y_pred,y_ref).score(y_pred,y_ref)
-    plt.title('Model with R^2 = '+ str(model_r_sq))
+    model_r_sq = format(model_r_sq, '.4f')
+    plt.title(model_dataframe.name + ' evaluated on ' + test_dataframe.name + '\n with R^2 = '+ str(model_r_sq))
     plt.legend()
     fig.savefig('../plot_' + model_dataframe.name + '_' + str(model) +'.png')
 
+#15955 lines in march_april_df1
 
-plot_model(2, march_april_ref, may_models, march_april_df2, 262)
+
+#plot_model(1, march_april_ref, may_models, march_april_df2, 262)
+plot_model(2, march_april_ref, may_models, march_april_df1, 419)
+plot_model(3, march_april_ref, may_models, march_april_df2, 914)
+plot_model(4, march_april_ref, may_models, march_april_df1, 19)
+plot_model(5, march_april_ref, may_models, march_april_df1, 503)
+#plot_model(6, march_may_ref, april_models, march_may_df2, 914)
+#plot_model(7, april_may_ref, march_models, april_may_df2, 914)
+
+#march_models.sort_values(['df2_evaluated_r_sq'], ascending=[False]).head(10)
+# 3048 models
+# 234 models > 0.9
+# 67 models > 0.94
