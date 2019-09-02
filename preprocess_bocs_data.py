@@ -1,20 +1,17 @@
+'''
+Start program in command line with:
+%run preprocess_bocs_data.py "../aviva_april_2019.csv" "../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_1_2019-04*" "../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_2_2019-04*"
+
+Problem in data file of 11/05/2019 and 12/05/2019. Not using those days
+'''
 import numpy as np
 import pandas as pd
 import glob
 import os
-from sklearn.linear_model import LinearRegression
+import argparse
 
 
-# Read selected columns of reference data, change columns names and create new file with the processed data
-ref_df = pd.read_csv("../aviva_april_2019.csv", header=0, index_col=0, usecols=['TimeBeginning', '1045100_NO_29_Scaled', '1045100_NO2_31_Scaled', '1045100_NOx_30_Scaled', '1045100_O3_1_Scaled', '1045100_WD_34_Scaled', '1045100_TEMP_41_Scaled', '1045100_HUM_46_Scaled', '1045100_WINDMS_33_Scaled'],
-dtype={'TimeBeginning': 'object', '1045100_NO_29_Scaled': np.float64, '1045100_NO2_31_Scaled': np.float64, '1045100_NOx_30_Scaled': np.float64, '1045100_O3_1_Scaled': np.float64, '1045100_WD_34_Scaled': np.float64, '1045100_TEMP_41_Scaled': np.float64, '1045100_HUM_46_Scaled': np.float64, '1045100_WINDMS_33_Scaled': np.float64})
-
-ref_df.columns = ['NO_Scaled', 'NO2_Scaled', 'NOx_Scaled', 'O3_Scaled', 'WD_Scaled', 'TEMP_Scaled', 'HUM_Scaled', 'WINDMS_Scaled']
-
-ref_df.to_csv('../preprocessed_aviva_april_2019.csv')
-
-
-# Function to convert sensor signal to ppb
+# Function to convert sensor signal to concentration in ppb
 def signal_to_ppb(dataframe, compound, sensor, properties_df):
     we_signal = dataframe[compound + "_" + sensor + "_working"]
     we_zero = properties_df.loc[compound + '_' + sensor, 'we_zero']
@@ -65,7 +62,7 @@ def co2_concentration(properties_df, sensor, dataframe):
     dataframe[sensor] = concentration
 
 
-# Function to align 3 sensor data to median value, then take median value for every timestamp.
+# Function to align 3 sensors data to median value, then take median value for every timestamp.
 def find_median(dataframe, finalname, a, b, c):
     med_value = np.median([dataframe[a].iloc[0], dataframe[b].iloc[0], dataframe[c].iloc[0]])
     med_df = pd.DataFrame()
@@ -94,13 +91,30 @@ def find_voc_median(dataframe, finalname, a, b, c, d, e, f, g, h):
 
 #=======================================================================================================================
 
+parser = argparse.ArgumentParser(description = 'Filepath to preprocess')
+parser.add_argument("reference_filepath", help='Input reference filepath to preprocess. Example: "../aviva_april_2019.csv".')
+parser.add_argument("array_1_filepath", nargs='+', help='Input sensor array 1 filepath to preprocess. Example: "../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_1_2019-04*".')
+parser.add_argument("array_2_filepath", nargs='+', help='Input sensor array 1 filepath to preprocess. Example: "../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_2_2019-04*".')
+args = parser.parse_args()
+
+
+
+# Read selected columns of reference data, change columns names and create new file with the processed data
+ref_df = pd.read_csv(args.reference_filepath, header=0, index_col=0, usecols=['TimeBeginning', '1045100_NO_29_Scaled', '1045100_NO2_31_Scaled', '1045100_NOx_30_Scaled', '1045100_O3_1_Scaled', '1045100_WD_34_Scaled', '1045100_TEMP_41_Scaled', '1045100_HUM_46_Scaled', '1045100_WINDMS_33_Scaled'],
+dtype={'TimeBeginning': 'object', '1045100_NO_29_Scaled': np.float64, '1045100_NO2_31_Scaled': np.float64, '1045100_NOx_30_Scaled': np.float64, '1045100_O3_1_Scaled': np.float64, '1045100_WD_34_Scaled': np.float64, '1045100_TEMP_41_Scaled': np.float64, '1045100_HUM_46_Scaled': np.float64, '1045100_WINDMS_33_Scaled': np.float64})
+
+ref_df.columns = ['NO_Scaled', 'NO2_Scaled', 'NOx_Scaled', 'O3_Scaled', 'WD_Scaled', 'TEMP_Scaled', 'HUM_Scaled', 'WINDMS_Scaled']
+filename = os.path.basename(args.reference_filepath)
+ref_df.to_csv('../preprocessed_'+filename)
+
+
 
 # Process sensor_array_1 data
 # Select columns, chage their names, covert sensor signal to ppb, temperature to degrees and relative humidity to percentage. Then write new file with the converted values added.
-properties_df1 = pd.read_csv("../sensor_array_1_electronic_properties.csv", index_col=0)
-co2_properties_1 = pd.read_csv("../sensor_array_1_co2_properties.csv", index_col=0)
+properties_df1 = pd.read_csv("../sensor_properties/sensor_array_1_electronic_properties.csv", index_col=0)
+co2_properties_1 = pd.read_csv("../sensor_properties/sensor_array_1_co2_properties.csv", index_col=0)
 
-for file in glob.glob("../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_1_2019-04*"):
+for file in args.array_1_filepath:
     df1= pd.read_csv(file, header=0, index_col=0, usecols=['timestamp', 'voc_1', 'voc_2', 'voc_3', 'voc_4', 'voc_5', 'voc_6', 'voc_7', 'voc_8',
     'no_1', 'no_2', 'no_3', 'no_4', 'no_5', 'no_6',
     'co_1', 'co_2', 'co_3', 'co_4', 'co_5', 'co_6',
@@ -139,10 +153,10 @@ for file in glob.glob("../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_1_2019-04*
 
 # Process sensor_array_2 data
 # Select columns, chage their names, covert sensor signal to ppb, temperature to degrees and relative humidity to percentage. Then write new file with the converted values added.
-properties_df2 = pd.read_csv("../sensor_array_2_electronic_properties.csv", index_col=0)
-co2_properties_2 = pd.read_csv("../sensor_array_2_co2_properties.csv", index_col=0)
+properties_df2 = pd.read_csv("../sensor_properties/sensor_array_2_electronic_properties.csv", index_col=0)
+co2_properties_2 = pd.read_csv("../sensor_properties/sensor_array_2_co2_properties.csv", index_col=0)
 
-for file in glob.glob("../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_2_2019-04*"):
+for file in args.array_2_filepath:
     df2= pd.read_csv(file, header=0, index_col=0, usecols=['timestamp', 'voc_1', 'voc_2', 'voc_3', 'voc_4', 'voc_5', 'voc_6', 'voc_7', 'voc_8',
     'no_1', 'no_2', 'no_3', 'no_4', 'no_5', 'no_6',
     'co_1', 'co_2', 'co_3', 'co_4', 'co_5', 'co_6',
@@ -176,7 +190,3 @@ for file in glob.glob("../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_2_2019-04*
     find_voc_median(df2, 'VOC', 'voc_1', 'voc_2', 'voc_3', 'voc_4', 'voc_5', 'voc_6', 'voc_7', 'voc_8')
     filename = os.path.basename(file)
     df2.to_csv("../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocessed_"+filename)
-
-
-
-# Problem in data file of 11/05/2019 and 12/05/2019. Not using those days
