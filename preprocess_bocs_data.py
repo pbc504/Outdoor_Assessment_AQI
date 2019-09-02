@@ -1,9 +1,11 @@
 '''
+Program to preprocess files.
 Start program in command line with:
 %run preprocess_bocs_data.py "../aviva_april_2019.csv" "../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_1_2019-04*" "../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_2_2019-04*"
 
 Problem in data file of 11/05/2019 and 12/05/2019. Not using those days
 '''
+
 import numpy as np
 import pandas as pd
 import glob
@@ -147,7 +149,10 @@ for file in args.array_1_filepath:
     find_median(df1, 'NO2', 'no2_1', 'no2_2', 'no2_2')
     find_voc_median(df1, 'VOC', 'voc_1', 'voc_2', 'voc_3', 'voc_4', 'voc_5', 'voc_6', 'voc_7', 'voc_8')
     filename = os.path.basename(file)
-    df1.to_csv("../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocessed_"+filename)
+    directory = os.path.dirname(file)
+    foldername = os.path.basename(directory)
+    directory_of_directory = os.path.dirname(directory)
+    df1.to_csv(directory_of_directory + "/preprocessed_" + foldername + "/preprocessed_" +filename)
 
 
 
@@ -189,4 +194,7 @@ for file in args.array_2_filepath:
     find_median(df2, 'NO2', 'no2_1', 'no2_2', 'no2_2')
     find_voc_median(df2, 'VOC', 'voc_1', 'voc_2', 'voc_3', 'voc_4', 'voc_5', 'voc_6', 'voc_7', 'voc_8')
     filename = os.path.basename(file)
-    df2.to_csv("../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocessed_"+filename)
+    directory = os.path.dirname(file)
+    foldername = os.path.basename(directory)
+    directory_of_directory = os.path.dirname(directory)
+    df2.to_csv(directory_of_directory + "/preprocessed_" + foldername + "/preprocessed_" +filename)
