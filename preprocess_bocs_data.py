@@ -1,14 +1,13 @@
 '''
 Program to preprocess files.
 Start program in command line with:
-%run preprocess_bocs_data.py "../aviva_april_2019.csv" "../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_1_2019-04*" "../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_2_2019-04*"
+%run preprocess_bocs_data.py "../aviva_april_2019.csv" "../bocs_aviva_raw_2019-03_2019-06/*2019-04*"
 
 Problem in data file of 11/05/2019 and 12/05/2019. Not using those days
 '''
 
 import numpy as np
 import pandas as pd
-import glob
 import os
 import argparse
 
@@ -93,12 +92,16 @@ def find_voc_median(dataframe, finalname, a, b, c, d, e, f, g, h):
 
 #=======================================================================================================================
 
+#Arguments to parse
 parser = argparse.ArgumentParser(description = 'Filepath to preprocess')
 parser.add_argument("reference_filepath", help='Input reference filepath to preprocess. Example: "../aviva_april_2019.csv".')
-parser.add_argument("array_1_filepath", nargs='+', help='Input sensor array 1 filepath to preprocess. Example: "../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_1_2019-04*".')
-parser.add_argument("array_2_filepath", nargs='+', help='Input sensor array 1 filepath to preprocess. Example: "../bocs_aviva_raw_2019-03_2019-06/SENSOR_ARRAY_2_2019-04*".')
+parser.add_argument("arrays_filepath", nargs='+', help='Input  sensor arrays filepath to preprocess. Example: "../bocs_aviva_raw_2019-03_2019-06/*2019-04*".')
 args = parser.parse_args()
 
+# Separates sensor array 1 files from sensor array 2 files
+all_files = args.arrays_filepath
+array_1_files = all_files[:len(all_files)//2]
+array_2_files = all_files[len(all_files)//2:]
 
 
 # Read selected columns of reference data, change columns names and create new file with the processed data
@@ -116,7 +119,7 @@ ref_df.to_csv('../preprocessed_'+filename)
 properties_df1 = pd.read_csv("../sensor_properties/sensor_array_1_electronic_properties.csv", index_col=0)
 co2_properties_1 = pd.read_csv("../sensor_properties/sensor_array_1_co2_properties.csv", index_col=0)
 
-for file in args.array_1_filepath:
+for file in array_1_files:
     df1= pd.read_csv(file, header=0, index_col=0, usecols=['timestamp', 'voc_1', 'voc_2', 'voc_3', 'voc_4', 'voc_5', 'voc_6', 'voc_7', 'voc_8',
     'no_1', 'no_2', 'no_3', 'no_4', 'no_5', 'no_6',
     'co_1', 'co_2', 'co_3', 'co_4', 'co_5', 'co_6',
@@ -161,7 +164,7 @@ for file in args.array_1_filepath:
 properties_df2 = pd.read_csv("../sensor_properties/sensor_array_2_electronic_properties.csv", index_col=0)
 co2_properties_2 = pd.read_csv("../sensor_properties/sensor_array_2_co2_properties.csv", index_col=0)
 
-for file in args.array_2_filepath:
+for file in array_2_files:
     df2= pd.read_csv(file, header=0, index_col=0, usecols=['timestamp', 'voc_1', 'voc_2', 'voc_3', 'voc_4', 'voc_5', 'voc_6', 'voc_7', 'voc_8',
     'no_1', 'no_2', 'no_3', 'no_4', 'no_5', 'no_6',
     'co_1', 'co_2', 'co_3', 'co_4', 'co_5', 'co_6',
