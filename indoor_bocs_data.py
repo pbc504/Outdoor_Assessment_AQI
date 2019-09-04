@@ -10,7 +10,7 @@ import xlrd
 # Same thing for both sensor arrays
 df1 = pd.DataFrame()
 
-for file in glob.glob("indoor_data/preprocessed_BOCS/preprocessed_SENSOR_ARRAY_1*"):
+for file in glob.glob("../../indoor_data/preprocessed_BOCS/preprocessed_SENSOR_ARRAY_1*"):
     df1_1 = pd.read_csv(file, header=0, index_col=0,
     usecols=['timestamp', 'VOC', 'NO', 'CO', 'Ox', 'NO2',
 #    'co2_1_active', 'co2_1_reference', 'co2_2_active', 'co2_2_reference', 'co2_3_active', 'co2_3_reference',
@@ -24,7 +24,7 @@ for file in glob.glob("indoor_data/preprocessed_BOCS/preprocessed_SENSOR_ARRAY_1
 
 df2 = pd.DataFrame()
 
-for file in glob.glob("indoor_data/preprocessed_BOCS/preprocessed_SENSOR_ARRAY_2*"):
+for file in glob.glob("../../indoor_data/preprocessed_BOCS/preprocessed_SENSOR_ARRAY_2*"):
     df2_1 = pd.read_csv(file, header=0, index_col=0,
     usecols=['timestamp', 'VOC', 'NO', 'CO', 'Ox', 'NO2',
 #    'co2_1_active', 'co2_1_reference', 'co2_2_active', 'co2_2_reference', 'co2_3_active', 'co2_3_reference',
@@ -37,20 +37,20 @@ for file in glob.glob("indoor_data/preprocessed_BOCS/preprocessed_SENSOR_ARRAY_2
     df2 = df2.append(df2_1r, sort=False)
 
 # Reads reference nox data
-ref_nox = pd.read_csv("indoor_data/REFERENCE/nox_reference/blc_logging_190816_103552.csv", header=0, index_col=0)
+ref_nox = pd.read_csv("../../indoor_data/REFERENCE/nox_reference/blc_logging_190816_103552.csv", header=0, index_col=0)
 ref_nox.index = pd.to_datetime(ref_nox.index)
 ref_nox = ref_nox.resample("5Min").mean()
 
 # Reads reference o3 data from the 12/08/2019 to the 19/08/2019
-ref_1_df = pd.read_csv("indoor_data/REFERENCE/logging_1min_190812_082923", header=0,
+ref_1_df = pd.read_csv("../../indoor_data/REFERENCE/logging_1min_190812_082923", header=0,
 usecols=['TheTime','O3_1', 'O3_5', 'co', 'co_ta3000', 'HUMIDITY'])
 
 # Reads reference o3 data from the 19/08/2019 to the 24/08/2019
-ref_2_df = pd.read_csv("indoor_data/REFERENCE/logging_1min_190818_083217", header=0,
+ref_2_df = pd.read_csv("../../indoor_data/REFERENCE/logging_1min_190818_083217", header=0,
 usecols=['TheTime','O3_1', 'O3_5', 'co', 'co_ta3000', 'HUMIDITY'])
 
 # Reads reference o3 data from the 24/08/2019 to the 30/08/2019
-ref_3_df = pd.read_csv("indoor_data/REFERENCE/logging_1min_190824_083512", header=0,
+ref_3_df = pd.read_csv("../../indoor_data/REFERENCE/logging_1min_190824_083512", header=0,
 usecols=['TheTime','O3_1', 'O3_5', 'co', 'co_ta3000', 'HUMIDITY'])
 
 # Merges reference o3 data
@@ -67,3 +67,12 @@ ref_o3 = ref_o3.resample('5Min').mean()
 
 
 # Match reference to bocs_data dates
+def match_dates(reference_dataframe, array1_dataframe, array2_dataframe):
+    first_date = max(reference_dataframe.index[0], array1_dataframe.index[0], array2_dataframe.index[0])
+    last_date = min(reference_dataframe.index[-1], array1_dataframe.index[-1], array2_dataframe.index[-1])
+    
+
+
+df1.index
+df2.index
+ref_o3.index
