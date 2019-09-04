@@ -160,27 +160,27 @@ march_april_df1 = march_df1.append(april_df1, sort=False)
 march_april_df1.name = 'March and April sensor array 1'
 march_april_df2 = march_df2.append(april_df2, sort=False)
 march_april_df2.name = 'March and April sensor array 2'
-march_april_ref_df.to_csv('../joint_files/joint_aviva_march-april_ref_2019.csv')
+march_april_ref.to_csv('../joint_files/joint_aviva_march-april_ref_2019.csv')
 march_april_df1.to_csv('../joint_files/joint_aviva_march-april_df1_2019.csv')
 march_april_df2.to_csv('../joint_files/joint_aviva_march-april_df2_2019.csv')
 
 ## Append march and may dataframes
-march_may_ref_df = march_ref_df.append(may_ref_df, sort=False)
+march_may_ref = march_ref_df.append(may_ref_df, sort=False)
 march_may_df1 = march_df1.append(may_df1, sort=False)
 march_may_df1.name = 'March and May sensor array 1'
 march_may_df2 = march_df2.append(may_df2, sort=False)
 march_may_df2.name = 'March and May sensor array 2'
-march_may_ref_df.to_csv('../joint_files/joint_aviva_march-may_ref_2019.csv')
+march_may_ref.to_csv('../joint_files/joint_aviva_march-may_ref_2019.csv')
 march_may_df1.to_csv('../joint_files/joint_aviva_march-may_df1_2019.csv')
 march_may_df2.to_csv('../joint_files/joint_aviva_march-may_df2_2019.csv')
 
 ## Append april and may dataframes
-april_may_ref_df = april_ref_df.append(may_ref_df, sort=False)
+april_may_ref = april_ref_df.append(may_ref_df, sort=False)
 april_may_df1 = april_df1.append(may_df1, sort=False)
 april_may_df1.name = 'April and May sensor array 1'
 april_may_df2 = april_df2.append(may_df2, sort=False)
 april_may_df2.name = 'April and May sensor array 2'
-april_may_ref_df.to_csv('../joint_files/joint_aviva_april-may_ref_2019.csv')
+april_may_ref.to_csv('../joint_files/joint_aviva_april-may_ref_2019.csv')
 april_may_df1.to_csv('../joint_files/joint_aviva_april-may_df1_2019.csv')
 april_may_df2.to_csv('../joint_files/joint_aviva_april-may_df2_2019.csv')
 
