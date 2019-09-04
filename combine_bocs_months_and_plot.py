@@ -1,10 +1,11 @@
+'''
+Program to join files by month
+'''
 import numpy as np
 import pandas as pd
 import glob
 import os
-from sklearn.linear_model import LinearRegression
-import matplotlib.pyplot as plt
-import itertools
+import argparse
 
 
 # Reads reference data for march
