@@ -70,9 +70,12 @@ ref_o3 = ref_o3.resample('5Min').mean()
 def match_dates(reference_dataframe, array1_dataframe, array2_dataframe):
     first_date = max(reference_dataframe.index[0], array1_dataframe.index[0], array2_dataframe.index[0])
     last_date = min(reference_dataframe.index[-1], array1_dataframe.index[-1], array2_dataframe.index[-1])
+    reference_dataframe = reference_dataframe[first_date:last_date]
+    array1_dataframe = array1_dataframe[first_date:last_date]
+    array2_dataframe = array2_dataframe[first_date:last_date]
+    #if len(reference_dataframe) != len(df1) or len(reference_dataframe) != len(df2):
+    return reference_dataframe, array1_dataframe, array2_dataframe
 
-
-
-df1.index
-df2.index
-ref_o3.index
+ref_o3 = match_dates(ref_o3, df1, df2)[0]
+df1 = match_dates(ref_o3, df1, df2)[1]
+df2 = match_dates(ref_o3, df1, df2)[2]
