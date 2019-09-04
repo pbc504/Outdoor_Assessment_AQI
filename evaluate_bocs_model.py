@@ -1,6 +1,6 @@
 '''
 Program to evaluate models with preprocessed files from 2 months and trained models from a third month.
-Start program in command line with:
+Start program in command line with for example:
 %run evaluate_bocs_model.py "../preprocessed_aviva_march_2019.csv" "2019-03" "../preprocessed_aviva_may_2019.csv" "2019-05" "../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocessed*2019-03*" "../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocessed*2019-05*" "../bocs_aviva_trained_models_april_2019.csv" "../bocs_aviva_evaluated_models_april_2019.csv"
 
 Problem in data file of 11/05/2019 and 12/05/2019. Not using those days
@@ -48,10 +48,10 @@ def evaluate_model(test_dataframe,combo_num, r_sq_variable_name):
 #========================================================================================================================
 
 # Arguments to parse
-parser = argparse.ArgumentParser(description = 'Month to train models')
-parser.add_argument("first_reference_filepath", help='Input first reference filepath to evaluate models. Example: "../preprocessed_aviva_march_2019.csv".')
+parser = argparse.ArgumentParser(description = 'Program to evaluate models with preprocessed files from 2 months and trained models from a third month. Start program in command line with for example: %run evaluate_bocs_model.py "../preprocessed_aviva_march_2019.csv" "2019-03" "../preprocessed_aviva_may_2019.csv" "2019-05" "../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocessed*2019-03*" "../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocessed*2019-05*" "../bocs_aviva_trained_models_april_2019.csv" "../bocs_aviva_evaluated_models_april_2019.csv"')
+parser.add_argument("first_reference_filepath", help='Input first month reference filepath to evaluate models. Example: "../preprocessed_aviva_march_2019.csv".')
 parser.add_argument("first_date", help='Input YYYY-MM for the first set of data Exampple: "2019-03".')
-parser.add_argument("second_reference_filepath", help='Input second reference filepath to evaluate models. Example: "../preprocessed_aviva_may_2019.csv".')
+parser.add_argument("second_reference_filepath", help='Input second month reference filepath to evaluate models. Example: "../preprocessed_aviva_may_2019.csv".')
 parser.add_argument("second_date", help='Input YYYY-MM for the second set of data Exampple: "2019-05".')
 parser.add_argument("arrays_filepath", nargs='+', help='Input arrays filepath to evaluate. Example: "../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocessed*2019-03*"  "../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocessed*2019-05*".')
 parser.add_argument("trained_results_filepath", help='Input filepath of the file with the trained models. Example: "../bocs_aviva_trained_models_april_2019.csv"')
