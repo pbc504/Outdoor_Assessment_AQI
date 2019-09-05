@@ -6,6 +6,35 @@ import matplotlib.pyplot as plt
 import itertools
 import xlrd
 
+
+# Function to match reference to bocs_data dates
+def match_dates(reference_dataframe, array1_dataframe, array2_dataframe):
+    first_date = max(reference_dataframe.index[0], array1_dataframe.index[0], array2_dataframe.index[0])
+    last_date = min(reference_dataframe.index[-1], array1_dataframe.index[-1], array2_dataframe.index[-1])
+    reference_dataframe = reference_dataframe[first_date:last_date]
+    array1_dataframe = array1_dataframe[first_date:last_date]
+    array2_dataframe = array2_dataframe[first_date:last_date]
+    if len(reference_dataframe) != len(array1_dataframe) or len(reference_dataframe) != len(array2_dataframe):
+        min_length = min(len(reference_dataframe), len(array1_dataframe), len(array2_dataframe))
+        if len(reference_dataframe) == min_length:
+            diff_1 = list(set(array1_dataframe.index) - set(reference_dataframe.index))
+            array1_dataframe = array1_dataframe.drop(diff_1)
+            diff_2 = list(set(array2_dataframe.index) - set(reference_dataframe.index))
+            array1_dataframe = array2_dataframe.drop(diff_2)
+        elif len(array1_dataframe) == min_length:
+            diff_1 = list(set(reference_dataframe.index) - set(array1_dataframe.index))
+            reference_dataframe = reference_dataframe.drop(diff_1)
+            diff_2 = list(set(array2_dataframe.index) - set(array1_dataframe.index))
+            array2_dataframe = array2_dataframe.drop(diff_2)
+        elif len(array2_dataframe) == min_length:
+            diff_1 = list(set(reference_dataframe.index) - set(array2_dataframe.index))
+            reference_dataframe = reference_dataframe.drop(diff_1)
+            diff_2 = list(set(array1_dataframe.index) - set(array2_dataframe.index))
+            array1_dataframe = array1_dataframe.drop(diff_2)
+    return reference_dataframe, array1_dataframe, array2_dataframe
+
+#========================================================================================================
+
 # Reads selected columns of each preprocessed file in april, resamples them to 5 minutes and appends them into a dataframe containing all april data.
 # Same thing for both sensor arrays
 df1 = pd.DataFrame()
@@ -65,24 +94,7 @@ for number in range(0, len(ref_o3.index)):
 ref_o3.index = ref_o3['TheTime']
 ref_o3 = ref_o3.resample('5Min').mean()
 
-
 # Match reference to bocs_data dates
-def match_dates(reference_dataframe, array1_dataframe, array2_dataframe):
-    first_date = max(reference_dataframe.index[0], array1_dataframe.index[0], array2_dataframe.index[0])
-    last_date = min(reference_dataframe.index[-1], array1_dataframe.index[-1], array2_dataframe.index[-1])
-    reference_dataframe = reference_dataframe[first_date:last_date]
-    array1_dataframe = array1_dataframe[first_date:last_date]
-    array2_dataframe = array2_dataframe[first_date:last_date]
-    if len(reference_dataframe) != len(df1) or len(reference_dataframe) != len(df2):
-        min_length = min(len(reference_dataframe), len(array1_dataframe), len(array2_dataframe))
-        for dataframe in (reference_dataframe, array1_dataframe, array2_dataframe):
-            if len(dataframe) == min_length:
-                shortest_dataframe = dataframe
-        for dataframe in (reference_dataframe, array1_dataframe, array2_dataframe):
-            diff = list(set(dataframe.index) - set(shortest_dataframe.index))
-            dataframe = dataframe.drop(diff)
-    return reference_dataframe, array1_dataframe, array2_dataframe
-
 ref_o3 = match_dates(ref_o3, df1, df2)[0]
 df1 = match_dates(ref_o3, df1, df2)[1]
 df2 = match_dates(ref_o3, df1, df2)[2]
