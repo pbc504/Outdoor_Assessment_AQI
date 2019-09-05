@@ -73,8 +73,14 @@ def match_dates(reference_dataframe, array1_dataframe, array2_dataframe):
     reference_dataframe = reference_dataframe[first_date:last_date]
     array1_dataframe = array1_dataframe[first_date:last_date]
     array2_dataframe = array2_dataframe[first_date:last_date]
-#   if len(reference_dataframe) != len(df1) or len(reference_dataframe) != len(df2):
-#       diff = list(set(reference_dataframe.index) - set(array1_dataframe.index))
+    if len(reference_dataframe) != len(df1) or len(reference_dataframe) != len(df2):
+        min_length = min(len(reference_dataframe), len(array1_dataframe), len(array2_dataframe))
+        for dataframe in (reference_dataframe, array1_dataframe, array2_dataframe):
+            if len(dataframe) == min_length:
+                shortest_dataframe = dataframe
+        for dataframe in (reference_dataframe, array1_dataframe, array2_dataframe):
+            diff = list(set(dataframe.index) - set(shortest_dataframe.index))
+            dataframe = dataframe.drop(diff)
     return reference_dataframe, array1_dataframe, array2_dataframe
 
 ref_o3 = match_dates(ref_o3, df1, df2)[0]
