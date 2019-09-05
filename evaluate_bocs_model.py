@@ -45,6 +45,33 @@ def evaluate_model(test_dataframe,combo_num, r_sq_variable_name):
     model_r_sq = LinearRegression().fit(x,y).score(x,y)
     results_df.loc[combo_num, r_sq_variable_name] = model_r_sq
 
+
+# Match reference to bocs_data dates
+def match_dates(reference_dataframe, array1_dataframe, array2_dataframe):
+    first_date = max(reference_dataframe.index[0], array1_dataframe.index[0], array2_dataframe.index[0])
+    last_date = min(reference_dataframe.index[-1], array1_dataframe.index[-1], array2_dataframe.index[-1])
+    reference_dataframe = reference_dataframe[first_date:last_date]
+    array1_dataframe = array1_dataframe[first_date:last_date]
+    array2_dataframe = array2_dataframe[first_date:last_date]
+    if len(reference_dataframe) != len(array1_dataframe) or len(reference_dataframe) != len(array2_dataframe):
+        min_length = min(len(reference_dataframe), len(array1_dataframe), len(array2_dataframe))
+        if len(reference_dataframe) == min_length:
+            diff_1 = list(set(array1_dataframe.index) - set(reference_dataframe.index))
+            array1_dataframe = array1_dataframe.drop(diff_1)
+            diff_2 = list(set(array2_dataframe.index) - set(reference_dataframe.index))
+            array1_dataframe = array2_dataframe.drop(diff_2)
+        elif len(array1_dataframe) == min_length:
+            diff_1 = list(set(reference_dataframe.index) - set(array1_dataframe.index))
+            reference_dataframe = reference_dataframe.drop(diff_1)
+            diff_2 = list(set(array2_dataframe.index) - set(array1_dataframe.index))
+            array2_dataframe = array2_dataframe.drop(diff_2)
+        elif len(array2_dataframe) == min_length:
+            diff_1 = list(set(reference_dataframe.index) - set(array2_dataframe.index))
+            reference_dataframe = reference_dataframe.drop(diff_1)
+            diff_2 = list(set(array1_dataframe.index) - set(array2_dataframe.index))
+            array1_dataframe = array1_dataframe.drop(diff_2)
+    return reference_dataframe, array1_dataframe, array2_dataframe
+
 #========================================================================================================================
 
 # Arguments to parse
@@ -70,6 +97,7 @@ second_array_2_files = [s for s in all_arrays_file if "SENSOR_ARRAY_2_"+args.sec
 # Reads reference data for first month
 first_ref_df = pd.read_csv(args.first_reference_filepath, header=0, index_col=0,
 dtype={'TimeBeginning': 'object', 'NO_Scaled': np.float64, 'NO2_Scaled': np.float64, 'NOx_Scaled': np.float64, 'O3_Scaled': np.float64, 'WD_Scaled': np.float64, 'TEMP_Scaled': np.float64, 'HUM_Scaled': np.float64, 'WINDMS_Scaled': np.float64})
+first_ref_df.index = pd.to_datetime(first_ref_df.index)
 
 # Reads selected columns of each preprocessed file in first month, resamples them to 5 minutes and appends them into a dataframe containing all of that month data.
 # Same thing for both sensor arrays
@@ -104,26 +132,16 @@ for file in first_array_2_files:
 
 # Match start and finish of datalog for first month
 # Remove 11th and 12th of may from reference data as was a problem on those files of raw data (10*288=2880) 14th day- 3456
-if os.path.basename(args.first_reference_filepath) == 'preprocessed_aviva_may_2019.csv':
-    ref_df1 = first_ref_df[:2880]
-    ref_df2 = first_ref_df[3456:-1]
-    first_ref_df = ref_df1.append(ref_df2, sort=False)
-    diff_len_1 = len(first_df1) - len(first_ref_df)
-    first_df1 = first_df1[:-diff_len_1]
-    diff_len_2 = len(first_df2) - len(first_ref_df)
-    first_df2 = first_df2[:-diff_len_2]
-elif len(first_ref_df) != len(first_df1):
-    first_ref_df = first_ref_df[1:]
-    diff_len_1 = len(first_df1) - len(first_ref_df)
-    first_df1 = first_df1[diff_len_1:]
-    diff_len_2 = len(first_df2) - len(first_ref_df)
-    first_df2 = first_df2[diff_len_2:]
+first_ref_df = match_dates(first_ref_df, first_df1, first_df2)[0]
+first_df1 = match_dates(first_ref_df, first_df1, first_df2)[1]
+first_df2 = match_dates(first_ref_df, first_df1, first_df2)[2]
 
 
 
 # Reads reference data for second month
 second_ref_df = pd.read_csv(args.second_reference_filepath, header=0, index_col=0,
 dtype={'TimeBeginning': 'object', 'NO_Scaled': np.float64, 'NO2_Scaled': np.float64, 'NOx_Scaled': np.float64, 'O3_Scaled': np.float64, 'WD_Scaled': np.float64, 'TEMP_Scaled': np.float64, 'HUM_Scaled': np.float64, 'WINDMS_Scaled': np.float64})
+second_ref_df.index = pd.to_datetime(second_ref_df.index)
 
 # Reads selected columns of each preprocessed file in second month, resamples them to 5 minutes and appends them into a dataframe containing all of that month data.
 # Same thing for both sensor arrays
@@ -158,20 +176,9 @@ for file in second_array_2_files:
 
 # Match start and finish of datalog for first month
 # Remove 11th and 12th of may from reference data as was a problem on those files of raw data (10*288=2880) 14th day- 3456
-if os.path.basename(args.second_reference_filepath) == 'preprocessed_aviva_may_2019.csv':
-    ref_df1 = second_ref_df[:2880]
-    ref_df2 = second_ref_df[3456:-1]
-    second_ref_df = ref_df1.append(ref_df2, sort=False)
-    diff_len_1 = len(second_df1) - len(second_ref_df)
-    second_df1 = second_df1[:-diff_len_1]
-    diff_len_2 = len(second_df2) - len(second_ref_df)
-    second_df2 = second_df2[:-diff_len_2]
-elif len(second_ref_df) != len(second_df1):
-    second_ref_df = second_ref_df[1:]
-    diff_len_1 = len(second_df1) - len(second_ref_df)
-    second_df1 = second_df1[diff_len_1:]
-    diff_len_2 = len(second_df2) - len(second_ref_df)
-    second_df2 = second_df2[diff_len_2:]
+second_ref_df = match_dates(second_ref_df, second_df1, second_df2)[0]
+second_df1 = match_dates(second_ref_df, second_df1, second_df2)[1]
+second_df2 = match_dates(second_ref_df, second_df1, second_df2)[2]
 
 
 
