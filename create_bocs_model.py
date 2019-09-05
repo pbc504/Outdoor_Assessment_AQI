@@ -83,7 +83,36 @@ def combos_results(dataframe,combo, truth, results_df):
     return results_df.append({'Truth': truth, 'Sensor_Array': dataframe.name,
     'Predictor_1': predictor_1, 'Predictor_2': predictor_2, 'Predictor_3': predictor_3, 'Predictor_4': predictor_4, 'Predictor_5': predictor_5, 'Predictor_6': predictor_6, 'Predictor_7': predictor_7,
     'Intercept': model.intercept_, 'Slope_1': coefficient_1, 'Slope_2': coefficient_2, 'Slope_3': coefficient_3, 'Slope_4': coefficient_4, 'Slope_5': coefficient_5, 'Slope_6': coefficient_6, 'Slope_7': coefficient_7, 'r_sq': r_sq}, ignore_index=True)
+
+
+# Match reference to bocs_data dates
+def match_dates(reference_dataframe, array1_dataframe, array2_dataframe):
+    first_date = max(reference_dataframe.index[0], array1_dataframe.index[0], array2_dataframe.index[0])
+    last_date = min(reference_dataframe.index[-1], array1_dataframe.index[-1], array2_dataframe.index[-1])
+    reference_dataframe = reference_dataframe[first_date:last_date]
+    array1_dataframe = array1_dataframe[first_date:last_date]
+    array2_dataframe = array2_dataframe[first_date:last_date]
+    if len(reference_dataframe) != len(array1_dataframe) or len(reference_dataframe) != len(array2_dataframe):
+        min_length = min(len(reference_dataframe), len(array1_dataframe), len(array2_dataframe))
+        if len(reference_dataframe) == min_length:
+            diff_1 = list(set(array1_dataframe.index) - set(reference_dataframe.index))
+            array1_dataframe = array1_dataframe.drop(diff_1)
+            diff_2 = list(set(array2_dataframe.index) - set(reference_dataframe.index))
+            array1_dataframe = array2_dataframe.drop(diff_2)
+        elif len(array1_dataframe) == min_length:
+            diff_1 = list(set(reference_dataframe.index) - set(array1_dataframe.index))
+            reference_dataframe = reference_dataframe.drop(diff_1)
+            diff_2 = list(set(array2_dataframe.index) - set(array1_dataframe.index))
+            array2_dataframe = array2_dataframe.drop(diff_2)
+        elif len(array2_dataframe) == min_length:
+            diff_1 = list(set(reference_dataframe.index) - set(array2_dataframe.index))
+            reference_dataframe = reference_dataframe.drop(diff_1)
+            diff_2 = list(set(array1_dataframe.index) - set(array2_dataframe.index))
+            array1_dataframe = array1_dataframe.drop(diff_2)
+    return reference_dataframe, array1_dataframe, array2_dataframe
+
 #=================================================================================================================================================================================================
+
 # Arguments to parse
 parser = argparse.ArgumentParser(description = 'Month to train models')
 parser.add_argument("reference_filepath", help='Input reference filepath to train models on. Example: "../preprocessed_aviva_april_2019.csv".')
@@ -98,9 +127,10 @@ array_2_files = all_files[len(all_files)//2:]
 
 
 
-# Reads reference data
+# Reads reference data and converts timestamp to datetime
 ref_df = pd.read_csv(args.reference_filepath, header=0, index_col=0,
 dtype={'TimeBeginning': 'object', 'NO_Scaled': np.float64, 'NO2_Scaled': np.float64, 'NOx_Scaled': np.float64, 'O3_Scaled': np.float64, 'WD_Scaled': np.float64, 'TEMP_Scaled': np.float64, 'HUM_Scaled': np.float64, 'WINDMS_Scaled': np.float64})
+ref_df.index = pd.to_datetime(ref_df.index)
 
 
 # Reads selected columns of each preprocessed file, resamples them to 5 minutes and appends them into a dataframe containing all the data for that month.
@@ -137,20 +167,9 @@ for file in array_2_files:
 
 # Match start and finish of datalog
 # Remove 11th and 12th of may from reference data as was a problem on those files of raw data (10*288=2880) 14th day- 3456
-if os.path.basename(args.reference_filepath) == 'preprocessed_aviva_may_2019.csv':
-    ref_df1 = ref_df[:2880]
-    ref_df2 = ref_df[3456:-1]
-    ref_df = ref_df1.append(ref_df2, sort=False)
-    diff_len_1 = len(df1) - len(ref_df)
-    df1 = df1[:-diff_len_1]
-    diff_len_2 = len(df2) - len(ref_df)
-    df2 = df2[:-diff_len_2]
-elif len(ref_df) != len(df1):
-    ref_df = ref_df[1:]
-    diff_len_1 = len(df1) - len(ref_df)
-    df1 = df1[diff_len_1:]
-    diff_len_2 = len(df2) - len(ref_df)
-    df2 = df2[diff_len_2:]
+ref_df = match_dates(ref_df, df1, df2)[0]
+df1 = match_dates(ref_df, df1, df2)[1]
+df2 = match_dates(ref_df, df1, df2)[2]
 
 
 
