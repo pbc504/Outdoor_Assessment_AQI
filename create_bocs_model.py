@@ -98,7 +98,7 @@ def match_dates(reference_dataframe, array1_dataframe, array2_dataframe):
             diff_1 = list(set(array1_dataframe.index) - set(reference_dataframe.index))
             array1_dataframe = array1_dataframe.drop(diff_1)
             diff_2 = list(set(array2_dataframe.index) - set(reference_dataframe.index))
-            array1_dataframe = array2_dataframe.drop(diff_2)
+            array2_dataframe = array2_dataframe.drop(diff_2)
         elif len(array1_dataframe) == min_length:
             diff_1 = list(set(reference_dataframe.index) - set(array1_dataframe.index))
             reference_dataframe = reference_dataframe.drop(diff_1)

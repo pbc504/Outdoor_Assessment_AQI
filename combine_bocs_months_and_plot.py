@@ -1,5 +1,5 @@
 '''
-Program to join files by different combinations of months and plot selected model
+Program to merge files by different combinations of months and plot selected model
 '''
 import numpy as np
 import pandas as pd
@@ -55,6 +55,7 @@ def plot_model(figure, ref_dataframe, model_dataframe, test_dataframe, model):
     fig.savefig('../plot_' + model_dataframe.name + '_' + str(model) +'.png')
 
 
+
 # Function to match reference to bocs_data dates
 def match_dates(reference_dataframe, array1_dataframe, array2_dataframe):
     first_date = max(reference_dataframe.index[0], array1_dataframe.index[0], array2_dataframe.index[0])
@@ -62,13 +63,13 @@ def match_dates(reference_dataframe, array1_dataframe, array2_dataframe):
     reference_dataframe = reference_dataframe[first_date:last_date]
     array1_dataframe = array1_dataframe[first_date:last_date]
     array2_dataframe = array2_dataframe[first_date:last_date]
-    if len(reference_dataframe) != len(array1_dataframe) or len(reference_dataframe) != len(array2_dataframe):
+    if len(reference_dataframe) != len(array1_dataframe) or len(reference_dataframe) != len(array2_dataframe) or len(array1_dataframe) != len(array2_dataframe):
         min_length = min(len(reference_dataframe), len(array1_dataframe), len(array2_dataframe))
         if len(reference_dataframe) == min_length:
             diff_1 = list(set(array1_dataframe.index) - set(reference_dataframe.index))
             array1_dataframe = array1_dataframe.drop(diff_1)
             diff_2 = list(set(array2_dataframe.index) - set(reference_dataframe.index))
-            array1_dataframe = array2_dataframe.drop(diff_2)
+            array2_dataframe = array2_dataframe.drop(diff_2)
         elif len(array1_dataframe) == min_length:
             diff_1 = list(set(reference_dataframe.index) - set(array1_dataframe.index))
             reference_dataframe = reference_dataframe.drop(diff_1)
@@ -125,9 +126,9 @@ march_df1 = match_dates(march_ref_df, march_df1, march_df2)[1]
 march_df2 = match_dates(march_ref_df, march_df1, march_df2)[2]
 
 # Write march dataframes to csv
-march_ref_df.to_csv('../joint_files/joint_aviva_march_ref_2019.csv')
-march_df1.to_csv('../joint_files/joint_aviva_march_df1_2019.csv')
-march_df2.to_csv('../joint_files/joint_aviva_march_df2_2019.csv')
+march_ref_df.to_csv('../merged_files/merged_aviva_march_ref_2019.csv')
+march_df1.to_csv('../merged_files/merged_aviva_march_df1_2019.csv')
+march_df2.to_csv('../merged_files/merged_aviva_march_df2_2019.csv')
 
 
 
@@ -173,9 +174,9 @@ april_df1 = match_dates(april_ref_df, april_df1, april_df2)[1]
 april_df2 = match_dates(april_ref_df, april_df1, april_df2)[2]
 
 # Write april dataframes to csv
-april_ref_df.to_csv('../joint_files/joint_aviva_april_ref_2019.csv')
-april_df1.to_csv('../joint_files/joint_aviva_april_df1_2019.csv')
-april_df2.to_csv('../joint_files/joint_aviva_april_df2_2019.csv')
+april_ref_df.to_csv('../merged_files/merged_aviva_april_ref_2019.csv')
+april_df1.to_csv('../merged_files/merged_aviva_april_df1_2019.csv')
+april_df2.to_csv('../merged_files/merged_aviva_april_df2_2019.csv')
 
 
 
@@ -223,9 +224,9 @@ may_df1 = match_dates(may_ref_df, may_df1, may_df2)[1]
 may_df2 = match_dates(may_ref_df, may_df1, may_df2)[2]
 
 # Write may dataframes to csv
-may_ref_df.to_csv('../joint_files/joint_aviva_may_ref_2019.csv')
-may_df1.to_csv('../joint_files/joint_aviva_may_df1_2019.csv')
-may_df2.to_csv('../joint_files/joint_aviva_may_df2_2019.csv')
+may_ref_df.to_csv('../merged_files/merged_aviva_may_ref_2019.csv')
+may_df1.to_csv('../merged_files/merged_aviva_may_df1_2019.csv')
+may_df2.to_csv('../merged_files/merged_aviva_may_df2_2019.csv')
 
 
 ## Append march and april dataframes
@@ -234,9 +235,9 @@ march_april_df1 = march_df1.append(april_df1, sort=False)
 march_april_df1.name = 'March and April sensor array 1'
 march_april_df2 = march_df2.append(april_df2, sort=False)
 march_april_df2.name = 'March and April sensor array 2'
-march_april_ref.to_csv('../joint_files/joint_aviva_march-april_ref_2019.csv')
-march_april_df1.to_csv('../joint_files/joint_aviva_march-april_df1_2019.csv')
-march_april_df2.to_csv('../joint_files/joint_aviva_march-april_df2_2019.csv')
+march_april_ref.to_csv('../merged_files/merged_aviva_march-april_ref_2019.csv')
+march_april_df1.to_csv('../merged_files/merged_aviva_march-april_df1_2019.csv')
+march_april_df2.to_csv('../merged_files/merged_aviva_march-april_df2_2019.csv')
 
 ## Append march and may dataframes
 march_may_ref = march_ref_df.append(may_ref_df, sort=False)
@@ -244,9 +245,9 @@ march_may_df1 = march_df1.append(may_df1, sort=False)
 march_may_df1.name = 'March and May sensor array 1'
 march_may_df2 = march_df2.append(may_df2, sort=False)
 march_may_df2.name = 'March and May sensor array 2'
-march_may_ref.to_csv('../joint_files/joint_aviva_march-may_ref_2019.csv')
-march_may_df1.to_csv('../joint_files/joint_aviva_march-may_df1_2019.csv')
-march_may_df2.to_csv('../joint_files/joint_aviva_march-may_df2_2019.csv')
+march_may_ref.to_csv('../merged_files/merged_aviva_march-may_ref_2019.csv')
+march_may_df1.to_csv('../merged_files/merged_aviva_march-may_df1_2019.csv')
+march_may_df2.to_csv('../merged_files/merged_aviva_march-may_df2_2019.csv')
 
 ## Append april and may dataframes
 april_may_ref = april_ref_df.append(may_ref_df, sort=False)
@@ -254,9 +255,9 @@ april_may_df1 = april_df1.append(may_df1, sort=False)
 april_may_df1.name = 'April and May sensor array 1'
 april_may_df2 = april_df2.append(may_df2, sort=False)
 april_may_df2.name = 'April and May sensor array 2'
-april_may_ref.to_csv('../joint_files/joint_aviva_april-may_ref_2019.csv')
-april_may_df1.to_csv('../joint_files/joint_aviva_april-may_df1_2019.csv')
-april_may_df2.to_csv('../joint_files/joint_aviva_april-may_df2_2019.csv')
+april_may_ref.to_csv('../merged_files/merged_aviva_april-may_ref_2019.csv')
+april_may_df1.to_csv('../merged_files/merged_aviva_april-may_df1_2019.csv')
+april_may_df2.to_csv('../merged_files/merged_aviva_april-may_df2_2019.csv')
 
 
 
