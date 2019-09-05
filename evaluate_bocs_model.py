@@ -83,7 +83,7 @@ parser.add_argument("trained_results_filepath", help='Input filepath of the file
 parser.add_argument("evaluated_results_filepath", help='Input filename for the evaluated results file. Example: "../bocs_aviva_evaluated_models_april_2019.csv".')
 args = parser.parse_args()
 
-# Separate the files for each array and month
+# Separate the files for each array
 all_arrays_file = args.arrays_filepath
 array_1_files = [s for s in all_arrays_file if "SENSOR_ARRAY_1_" in s]
 array_2_files = [s for s in all_arrays_file if "SENSOR_ARRAY_2_" in s]
