@@ -1,7 +1,7 @@
 '''
 Program to evaluate models with preprocessed files from 2 months and trained models from a third month.
 Start program in command line with for example:
-%run evaluate_bocs_model.py "../preprocessed_aviva_march_2019.csv" "2019-03" "../preprocessed_aviva_may_2019.csv" "2019-05" "../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocessed*2019-03*" "../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocessed*2019-05*" "../bocs_aviva_trained_models_april_2019.csv" "../bocs_aviva_evaluated_models_april_2019.csv"
+%run evaluate_bocs_model.py "../preprocessed_aviva_march_2019.csv" "../preprocessed_aviva_may_2019.csv" "../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocessed*2019-03*" "../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocessed*2019-05*" "../bocs_aviva_trained_models_april_2019.csv" "../bocs_aviva_evaluated_models_april_2019.csv"
 
 Problem in data file of 11/05/2019 and 12/05/2019. Not using those days
 '''
@@ -75,11 +75,9 @@ def match_dates(reference_dataframe, array1_dataframe, array2_dataframe):
 #========================================================================================================================
 
 # Arguments to parse
-parser = argparse.ArgumentParser(description = 'Program to evaluate models with preprocessed files from 2 months and trained models from a third month. Start program in command line with for example: %run evaluate_bocs_model.py "../preprocessed_aviva_march_2019.csv" "2019-03" "../preprocessed_aviva_may_2019.csv" "2019-05" "../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocessed*2019-03*" "../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocessed*2019-05*" "../bocs_aviva_trained_models_april_2019.csv" "../bocs_aviva_evaluated_models_april_2019.csv"')
+parser = argparse.ArgumentParser(description = 'Program to evaluate models with preprocessed files from 2 months and trained models from a third month. Start program in command line with for example: %run evaluate_bocs_model.py "../preprocessed_aviva_march_2019.csv" "../preprocessed_aviva_may_2019.csv" "../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocessed*2019-03*" "../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocessed*2019-05*" "../bocs_aviva_trained_models_april_2019.csv" "../bocs_aviva_evaluated_models_april_2019.csv"')
 parser.add_argument("first_reference_filepath", help='Input first month reference filepath to evaluate models. Example: "../preprocessed_aviva_march_2019.csv".')
-parser.add_argument("first_date", help='Input YYYY-MM for the first set of data Exampple: "2019-03".')
 parser.add_argument("second_reference_filepath", help='Input second month reference filepath to evaluate models. Example: "../preprocessed_aviva_may_2019.csv".')
-parser.add_argument("second_date", help='Input YYYY-MM for the second set of data Exampple: "2019-05".')
 parser.add_argument("arrays_filepath", nargs='+', help='Input arrays filepath to evaluate. Example: "../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocessed*2019-03*"  "../preprocessed_bocs_aviva_raw_2019-03_2019-06/preprocessed*2019-05*".')
 parser.add_argument("trained_results_filepath", help='Input filepath of the file with the trained models. Example: "../bocs_aviva_trained_models_april_2019.csv"')
 parser.add_argument("evaluated_results_filepath", help='Input filename for the evaluated results file. Example: "../bocs_aviva_evaluated_models_april_2019.csv".')
@@ -87,10 +85,8 @@ args = parser.parse_args()
 
 # Separate the files for each array and month
 all_arrays_file = args.arrays_filepath
-first_array_1_files = [s for s in all_arrays_file if "SENSOR_ARRAY_1_"+args.first_date in s]
-second_array_1_files = [s for s in all_arrays_file if "SENSOR_ARRAY_1_"+args.second_date in s]
-first_array_2_files = [s for s in all_arrays_file if "SENSOR_ARRAY_2_"+args.first_date in s]
-second_array_2_files = [s for s in all_arrays_file if "SENSOR_ARRAY_2_"+args.second_date in s]
+array_1_files = [s for s in all_arrays_file if "SENSOR_ARRAY_1_" in s]
+array_2_files = [s for s in all_arrays_file if "SENSOR_ARRAY_2_" in s]
 
 
 
@@ -99,55 +95,18 @@ first_ref_df = pd.read_csv(args.first_reference_filepath, header=0, index_col=0,
 dtype={'TimeBeginning': 'object', 'NO_Scaled': np.float64, 'NO2_Scaled': np.float64, 'NOx_Scaled': np.float64, 'O3_Scaled': np.float64, 'WD_Scaled': np.float64, 'TEMP_Scaled': np.float64, 'HUM_Scaled': np.float64, 'WINDMS_Scaled': np.float64})
 first_ref_df.index = pd.to_datetime(first_ref_df.index)
 
-# Reads selected columns of each preprocessed file in first month, resamples them to 5 minutes and appends them into a dataframe containing all of that month data.
-# Same thing for both sensor arrays
-first_df1 = pd.DataFrame()
-
-for file in first_array_1_files:
-    df1_1 = pd.read_csv(file, header=0, index_col=0,
-    usecols=['timestamp', 'VOC', 'NO', 'CO', 'Ox', 'NO2',
-#    'co2_1_active', 'co2_1_reference', 'co2_2_active', 'co2_2_reference', 'co2_3_active', 'co2_3_reference',
-    'humidity_in_percentage', 'temperature_in_celsius'],
-    dtype={'timestamp': np.int64, 'VOC': np.float64, 'NO': np.float64, 'CO': np.float64, 'Ox': np.float64, 'NO2': np.float64,
-#    'co2_1': np.float64, 'co2_2': np.float64, 'co2_3': np.float64, 'co2_4': np.float64, 'co2_5': np.float64, 'co2_6': np.float64,
-    'humidity_in_percentage': np.float64, 'temperature_in_celsius': np.float64})
-    df1_1.index = pd.to_datetime(df1_1.index, unit='s')
-    df1_1r = df1_1.resample("5Min").mean()
-    first_df1 = first_df1.append(df1_1r, sort=False)
-
-
-first_df2 = pd.DataFrame()
-
-for file in first_array_2_files:
-    df2_1 = pd.read_csv(file, header=0, index_col=0,
-    usecols=['timestamp', 'VOC', 'NO', 'CO', 'Ox', 'NO2',
-#    'co2_1_active', 'co2_1_reference', 'co2_2_active', 'co2_2_reference', 'co2_3_active', 'co2_3_reference',
-    'humidity_in_percentage', 'temperature_in_celsius'],
-    dtype={'timestamp': np.int64, 'VOC': np.float64, 'NO': np.float64, 'CO': np.float64, 'Ox': np.float64, 'NO2': np.float64,
-#    'co2_1': np.float64, 'co2_2': np.float64, 'co2_3': np.float64, 'co2_4': np.float64, 'co2_5': np.float64, 'co2_6': np.float64,
-    'humidity_in_percentage': np.float64, 'temperature_in_celsius': np.float64})
-    df2_1.index = pd.to_datetime(df2_1.index, unit='s')
-    df2_1r = df2_1.resample("5Min").mean()
-    first_df2 = first_df2.append(df2_1r, sort=False)
-
-# Match start and finish of datalog for first month
-# Remove 11th and 12th of may from reference data as was a problem on those files of raw data (10*288=2880) 14th day- 3456
-first_ref_df = match_dates(first_ref_df, first_df1, first_df2)[0]
-first_df1 = match_dates(first_ref_df, first_df1, first_df2)[1]
-first_df2 = match_dates(first_ref_df, first_df1, first_df2)[2]
-
-
-
 # Reads reference data for second month
 second_ref_df = pd.read_csv(args.second_reference_filepath, header=0, index_col=0,
 dtype={'TimeBeginning': 'object', 'NO_Scaled': np.float64, 'NO2_Scaled': np.float64, 'NOx_Scaled': np.float64, 'O3_Scaled': np.float64, 'WD_Scaled': np.float64, 'TEMP_Scaled': np.float64, 'HUM_Scaled': np.float64, 'WINDMS_Scaled': np.float64})
 second_ref_df.index = pd.to_datetime(second_ref_df.index)
 
-# Reads selected columns of each preprocessed file in second month, resamples them to 5 minutes and appends them into a dataframe containing all of that month data.
-# Same thing for both sensor arrays
-second_df1 = pd.DataFrame()
 
-for file in second_array_1_files:
+
+# Reads selected columns of each preprocessed file in first array, resamples them to 5 minutes and appends them into a dataframe containing all the data.
+# Same thing for both sensor arrays
+df1 = pd.DataFrame()
+
+for file in array_1_files:
     df1_1 = pd.read_csv(file, header=0, index_col=0,
     usecols=['timestamp', 'VOC', 'NO', 'CO', 'Ox', 'NO2',
 #    'co2_1_active', 'co2_1_reference', 'co2_2_active', 'co2_2_reference', 'co2_3_active', 'co2_3_reference',
@@ -157,12 +116,12 @@ for file in second_array_1_files:
     'humidity_in_percentage': np.float64, 'temperature_in_celsius': np.float64})
     df1_1.index = pd.to_datetime(df1_1.index, unit='s')
     df1_1r = df1_1.resample("5Min").mean()
-    second_df1 = second_df1.append(df1_1r, sort=False)
+    df1 = df1.append(df1_1r, sort=False)
 
 
-second_df2 = pd.DataFrame()
+df2 = pd.DataFrame()
 
-for file in second_array_2_files:
+for file in array_2_files:
     df2_1 = pd.read_csv(file, header=0, index_col=0,
     usecols=['timestamp', 'VOC', 'NO', 'CO', 'Ox', 'NO2',
 #    'co2_1_active', 'co2_1_reference', 'co2_2_active', 'co2_2_reference', 'co2_3_active', 'co2_3_reference',
@@ -172,20 +131,17 @@ for file in second_array_2_files:
     'humidity_in_percentage': np.float64, 'temperature_in_celsius': np.float64})
     df2_1.index = pd.to_datetime(df2_1.index, unit='s')
     df2_1r = df2_1.resample("5Min").mean()
-    second_df2 = second_df2.append(df2_1r, sort=False)
-
-# Match start and finish of datalog for first month
-# Remove 11th and 12th of may from reference data as was a problem on those files of raw data (10*288=2880) 14th day- 3456
-second_ref_df = match_dates(second_ref_df, second_df1, second_df2)[0]
-second_df1 = match_dates(second_ref_df, second_df1, second_df2)[1]
-second_df2 = match_dates(second_ref_df, second_df1, second_df2)[2]
+    df2 = df2.append(df2_1r, sort=False)
 
 
-
-# Append first and second months dataframes
+# Append first and second month reference dataframes
 ref_df = first_ref_df.append(second_ref_df, sort=False)
-df1 = first_df1.append(second_df1, sort=False)
-df2 = first_df1.append(second_df2, sort=False)
+
+# Match start and finish of datalog
+# Remove 11th and 12th of may from reference data as was a problem on those files of raw data (10*288=2880) 14th day- 3456
+ref_df = match_dates(ref_df, df1, df2)[0]
+df1 = match_dates(ref_df, df1, df2)[1]
+df2 = match_dates(ref_df, df1, df2)[2]
 
 #================================================================================================================================================
 

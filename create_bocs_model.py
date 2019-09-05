@@ -122,8 +122,8 @@ args = parser.parse_args()
 
 # Separates sensor array 1 files from sensor array 2 files
 all_files = args.arrays_filepath
-array_1_files = all_files[:len(all_files)//2]
-array_2_files = all_files[len(all_files)//2:]
+array_1_files = [s for s in all_arrays_file if "SENSOR_ARRAY_1_" in s]
+array_2_files = [s for s in all_arrays_file if "SENSOR_ARRAY_1_" in s]
 
 
 
